@@ -14,12 +14,12 @@ app.use(express.json());
 // app.use(morgan('common'));
 
 // roles table seeder
-require('./app/utils/rolesSeeder.js')();
+// require('./app/utils/rolesSeeder.js')();
 
 app.get('/', (req, res) => res.status(200).json({ data: 'Hello world' }));
 
 // routes caller
-require('./app/routes/main.js')(app);
+// require('./app/routes/main.js')(app);
 
 // error handler 404
 app.use(function (req, res, next) {
