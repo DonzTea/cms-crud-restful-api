@@ -16,7 +16,7 @@ if (!process.env.NODE_ENV) {
 }
 
 // roles table seeder
-require('./app/utils/rolesSeeder.js')();
+// require('./app/utils/rolesSeeder.js')();
 
 app.get('/', (req, res) => res.status(200).json({ data: 'Hello world' }));
 
