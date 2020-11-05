@@ -1,5 +1,5 @@
 const express = require('express');
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const cors = require('cors');
 
 const app = express();
@@ -11,10 +11,10 @@ app.use(cors());
 app.use(express.json());
 
 // HTTP request logger
-app.use(morgan('common'));
+// app.use(morgan('common'));
 
 // roles table seeder
-// require('./app/utils/rolesSeeder.js')();
+require('./app/utils/rolesSeeder.js')();
 
 app.get('/', (req, res) => res.status(200).json({ data: 'Hello world' }));
 
