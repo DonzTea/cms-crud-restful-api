@@ -1,13 +1,23 @@
-require('dotenv').config();
-
 const { Sequelize } = require('sequelize');
 
-const database = process.env.DATABASE;
-const username = process.env.USERNAME;
-const password = process.env.PASSWORD;
+let host, database, username, password;
+
+if (process.env.NODE_ENV) {
+  host = 'ec2-34-232-24-202.compute-1.amazonaws.com';
+  database = 'd4pgn5qsm6n3k3';
+  username = 'lqqjgtaypmqxlb';
+  password = '51653a84ea072c61b22b6df1580a9585243f9af5b2ea00adbc7465907d480385';
+} else {
+  require('dotenv').config();
+
+  host = process.env.HOST;
+  database = process.env.DATABASE;
+  username = process.env.USERNAME;
+  password = process.env.PASSWORD;
+}
 
 const sequelize = new Sequelize(database, username, password, {
-  host: 'localhost',
+  host: host,
   dialect: 'postgres',
 });
 
