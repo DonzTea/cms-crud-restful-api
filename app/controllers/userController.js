@@ -82,7 +82,7 @@ const update = asyncHandler(async (req, res) => {
       },
     });
 
-    if (req.body.roles) {
+    if (updatedUserCandidate.roles) {
       const [user, roles] = await Promise.all([
         User.findOne({
           where: {
@@ -139,7 +139,7 @@ const detail = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const user = await User.findByPk(id);
 
-    if (user === null) {
+    if (!user) {
       return res
         .status(400)
         .json({ error: { code: 400, message: 'Not Found' } });

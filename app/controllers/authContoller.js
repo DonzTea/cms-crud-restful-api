@@ -34,7 +34,7 @@ const signup = asyncHandler(async (req, res) => {
 
       await user.setRoles(roles);
     } else {
-      await user.setRoles(['USER']);
+      await user.setRoles([1]);
     }
 
     return res.status(201).send({
@@ -82,7 +82,7 @@ const signin = asyncHandler(async (req, res) => {
       .then((roles) => roles.map((role) => role.name));
 
     const token = jwt.sign({ id: user.id }, config.secret, {
-      expiresIn: 24 * 60 * 60, // hours * minutes * seconds
+      expiresIn: '1 days',
     });
     return res.status(200).send({
       auth: true,
