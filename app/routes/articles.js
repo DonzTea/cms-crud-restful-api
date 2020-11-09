@@ -29,6 +29,7 @@ router
     [authJwt.verifyToken, authMiddleware.isAuthorizedForDelete],
     articleController.destroy,
   )
+  .get('/mine', [authJwt.verifyToken], articleController.mine)
   .get('/:id', [authJwt.verifyToken], articleController.detail)
   .post(
     '/find-or-create',

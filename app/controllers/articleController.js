@@ -119,6 +119,20 @@ const detail = asyncHandler(async (req, res) => {
   }
 });
 
+const mine = asyncHandler(async (req, res) => {
+  try {
+    const userIdPayload = req.userId;
+    const user = await User.findByPk(userIdPayload);
+    const articles = await user.getArticles();
+    return res.status(200).json({ data: articles });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: { code: 500, message: 'Internal Server Error' } });
+  }
+});
+
 const findOrCreate = asyncHandler(async (req, res) => {
   try {
     const [article, created] = await Article.findOrCreate({
@@ -157,5 +171,6 @@ module.exports = {
   update,
   destroy,
   detail,
+  mine,
   findOrCreate,
 };
