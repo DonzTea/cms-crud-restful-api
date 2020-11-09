@@ -145,7 +145,50 @@ const detail = asyncHandler(async (req, res) => {
         .json({ error: { code: 400, message: 'Not Found' } });
     }
 
-    return res.status(200).json({ data: user });
+    const roles = await user
+      .getRoles()
+      .then((roles) => roles.map((role) => ({ id: role.id, name: role.name })));
+
+    return res.status(200).json({
+      data: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        roles,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: { code: 500, message: 'Internal Server Error' } });
+  }
+});
+
+const self = asyncHandler(async (req, res) => {
+  try {
+    const id = req.userId;
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ error: { code: 400, message: 'Not Found' } });
+    }
+
+    return res.status(200).json({
+      data: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
   } catch (error) {
     console.error(error);
     return res
@@ -278,6 +321,7 @@ module.exports = {
   update,
   destroy,
   detail,
+  self,
   findOrCreate,
   userContent,
   adminBoard,

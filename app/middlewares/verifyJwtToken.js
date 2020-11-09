@@ -73,7 +73,7 @@ const isPmOrAdmin = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res
-      .send(500)
+      .status(500)
       .json({ error: { code: 500, message: 'Internal Server Error' } });
   }
 });

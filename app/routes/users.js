@@ -1,6 +1,7 @@
 const express = require('express');
 
-const validateUserData = require('../middlewares/validateUserData.js');
+const userMiddleware = require('../middlewares/user.js');
+const authMiddleware = require('../middlewares/auth.js');
 const authJwt = require('../middlewares/verifyJwtToken.js');
 const userController = require('../controllers/userController.js');
 
@@ -12,8 +13,9 @@ router
     '/',
     [
       authJwt.verifyToken,
-      validateUserData.checkDuplicateUsernameOrEmail,
-      validateUserData.checkRolesExisted,
+      userMiddleware.createUserBodyValidation,
+      userMiddleware.checkDuplicateUsernameOrEmail,
+      userMiddleware.isRolesValid,
     ],
     userController.create,
   )
@@ -21,16 +23,32 @@ router
     '/:id',
     [
       authJwt.verifyToken,
-      validateUserData.checkDuplicateUsernameOrEmail,
-      validateUserData.checkRolesExisted,
+      userMiddleware.checkParamIdExistence,
+      userMiddleware.updateUserBodyValidation,
+      authMiddleware.isAuthorizedForUpdate,
+      userMiddleware.checkDuplicateUsernameOrEmail,
+      userMiddleware.isRolesValid,
     ],
     userController.update,
   )
-  .delete('/:id', [authJwt.verifyToken], userController.destroy)
-  .get('/:id', [authJwt.verifyToken], userController.detail)
+  .delete(
+    '/:id',
+    [
+      authJwt.verifyToken,
+      userMiddleware.checkParamIdExistence,
+      authMiddleware.isAuthorizedForDelete,
+    ],
+    userController.destroy,
+  )
+  .get('/self', [authJwt.verifyToken], userController.self)
+  .get(
+    '/:id',
+    [authJwt.verifyToken, userMiddleware.checkParamIdExistence],
+    userController.detail,
+  )
   .post(
     '/find-or-create',
-    [authJwt.verifyToken, validateUserData.checkRolesExisted],
+    [authJwt.verifyToken, userMiddleware.isAdmin],
     userController.findOrCreate,
   );
 

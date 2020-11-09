@@ -1,6 +1,7 @@
 const express = require('express');
 
-const validateUserData = require('../middlewares/validateUserData.js');
+const userMiddleware = require('../middlewares/user.js');
+const authMiddleware = require('../middlewares/auth.js');
 const authController = require('../controllers/authContoller.js');
 
 const router = express.Router();
@@ -9,11 +10,16 @@ router
   .post(
     '/signup',
     [
-      validateUserData.checkDuplicateUsernameOrEmail,
-      validateUserData.checkRolesExisted,
+      authMiddleware.signupBodyValidation,
+      userMiddleware.checkDuplicateUsernameOrEmail,
+      userMiddleware.isRolesValid,
     ],
     authController.signup,
   )
-  .post('/signin', authController.signin);
+  .post(
+    '/signin',
+    [authMiddleware.signinBodyValidation],
+    authController.signin,
+  );
 
 module.exports = router;

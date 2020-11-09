@@ -10,9 +10,10 @@
   "keywords": [
     "JavaScript",
     "Node.js",
+    "Express.js",
     "Backend"
   ],
-  "author": "",
+  "author": "Doni Rahma Tiana",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
