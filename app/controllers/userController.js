@@ -76,22 +76,28 @@ const update = asyncHandler(async (req, res) => {
       );
     }
 
-    const updatedUser = await User.update(updatedUserCandidate, {
+    await User.update(updatedUserCandidate, {
       where: {
         id: req.params.id,
       },
     });
 
-    if (updatedUserCandidate.roles) {
-      const roles = await Role.findAll({
-        where: {
-          name: {
-            [Op.or]: updatedUserCandidate.roles,
+    if (req.body.roles) {
+      const [user, roles] = await Promise.all([
+        User.findOne({
+          where: {
+            id: req.params.id,
           },
-        },
-      });
-
-      await updatedUser.setRoles(roles);
+        }),
+        Role.findAll({
+          where: {
+            name: {
+              [Op.or]: req.body.roles,
+            },
+          },
+        }),
+      ]);
+      await user.setRoles(roles);
     }
 
     return res.status(200).json({

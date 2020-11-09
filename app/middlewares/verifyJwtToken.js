@@ -40,7 +40,6 @@ const isAdmin = asyncHandler(async (req, res, next) => {
     const roles = await user.getRoles();
 
     for (let i = 0; i < roles.length; i++) {
-      console.log(roles[i].name);
       if (roles[i].name.toUpperCase() === 'ADMIN') {
         return next();
       }

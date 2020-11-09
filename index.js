@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // HTTP request logger
-if (!process.env.NODE_ENV) {
+if (process.env.NODE_ENV === 'development') {
   const morgan = require('morgan');
   app.use(morgan('common'));
 }
@@ -40,6 +40,5 @@ app.use(function (err, req, res, next) {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(process.env);
-  console.log('Server is running on port' + PORT);
+  console.log('Server is running on port ' + PORT);
 });

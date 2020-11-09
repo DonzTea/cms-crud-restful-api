@@ -18,6 +18,7 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
           username: req.body.username,
         },
       });
+      console.log('userWithSameUsername: ' + userWithSameUsername);
 
       if (userWithSameUsername) {
         errors.push('Fail -> Username is already taken!');
@@ -32,6 +33,7 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
         },
       });
 
+      console.log('userWithSameEmail ' + userWithSameEmail);
       if (userWithSameEmail) {
         errors.push('Fail -> Email is already in use!');
       }

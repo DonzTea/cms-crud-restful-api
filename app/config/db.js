@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize');
 
 let host, database, username, password;
 
-if (process.env.NODE_ENV) {
+if (process.env.NODE_ENV === 'production') {
   host = 'ec2-34-232-24-202.compute-1.amazonaws.com';
   database = 'd4pgn5qsm6n3k3';
   username = 'lqqjgtaypmqxlb';

@@ -22,15 +22,20 @@ const signup = asyncHandler(async (req, res) => {
       email: req.body.email,
       password,
     });
-    const roles = await Role.findAll({
-      where: {
-        name: {
-          [Op.or]: req.body.roles,
-        },
-      },
-    });
 
-    await user.setRoles(roles);
+    if (req.body.roles && req.body.roles.length > 0) {
+      const roles = await Role.findAll({
+        where: {
+          name: {
+            [Op.or]: req.body.roles,
+          },
+        },
+      });
+
+      await user.setRoles(roles);
+    } else {
+      await user.setRoles(['USER']);
+    }
 
     return res.status(201).send({
       status: 'User registered successfully!',
@@ -72,6 +77,10 @@ const signin = asyncHandler(async (req, res) => {
       });
     }
 
+    const roles = await user
+      .getRoles()
+      .then((roles) => roles.map((role) => role.name));
+
     const token = jwt.sign({ id: user.id }, config.secret, {
       expiresIn: 24 * 60 * 60, // hours * minutes * seconds
     });
@@ -79,11 +88,12 @@ const signin = asyncHandler(async (req, res) => {
       auth: true,
       type: 'Bearer',
       accessToken: token,
+      roles,
     });
   } catch (error) {
     console.error(error);
     return res
-      .send(500)
+      .status(500)
       .json({ error: { code: 500, message: 'Internal Server Error' } });
   }
 });
