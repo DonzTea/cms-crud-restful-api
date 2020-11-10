@@ -9,16 +9,16 @@ const User = db.user;
 const verifyToken = asyncHandler(async (req, res, next) => {
   try {
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
-    if (token.startsWith('Bearer ')) {
-      // remove Bearer from string
-      token = token.slice(7, token.length);
-    }
-
     if (!token) {
       return res.status(403).send({
         auth: false,
         message: 'No token provided.',
       });
+    }
+
+    if (token.startsWith('Bearer ')) {
+      // remove Bearer from string
+      token = token.slice(7, token.length);
     }
 
     const decoded = jwt.verify(token, config.secret);

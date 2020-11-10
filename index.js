@@ -16,8 +16,12 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // roles table seeder
-// require('./app/utils/rolesSeeder.js')();
+// require('./app/utils/dbMigration.js')();
 
+// swagger config
+require('./app/config/swagger.js')(app);
+
+// dummy route
 app.get('/', (req, res) => res.status(200).json({ data: 'Hello world' }));
 
 // routes caller
