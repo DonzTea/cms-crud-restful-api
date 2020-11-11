@@ -95,11 +95,8 @@ const verifyToken = asyncHandler(async (req, res, next) => {
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
     if (!token) {
       return res.status(403).json({
-        error: {
-          code: 403,
-          auth: false,
-          message: 'No token provided.',
-        },
+        auth: false,
+        message: 'No token provided.',
       });
     }
 
@@ -115,11 +112,8 @@ const verifyToken = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      error: {
-        code: 500,
-        auth: false,
-        message: 'Fail to authentication. Error -> ' + error,
-      },
+      auth: false,
+      message: 'Fail to authentication. Error -> ' + error,
     });
   }
 });
@@ -135,17 +129,10 @@ const isAdmin = asyncHandler(async (req, res, next) => {
       }
     }
 
-    return res.status(403).json({
-      error: {
-        code: 403,
-        message: 'Require Admin Role!',
-      },
-    });
+    return res.status(403).json({ message: 'Require Admin Role!' });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -163,17 +150,10 @@ const isPmOrAdmin = asyncHandler(async (req, res, next) => {
       }
     }
 
-    return res.status(403).json({
-      error: {
-        code: 403,
-        message: 'Require PM or Admin Roles!',
-      },
-    });
+    return res.status(403).json({ message: 'Require PM or Admin Roles!' });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

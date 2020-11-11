@@ -27,9 +27,7 @@ const user = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .json(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.json(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -55,9 +53,7 @@ const admin = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -83,9 +79,7 @@ const pm = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .json(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.json(500).json({ message: 'Internal Server Error' });
   }
 });
 

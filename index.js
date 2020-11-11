@@ -27,7 +27,6 @@ require('./app/routes/main.js')(app);
 // error handler 404
 app.use(function (req, res, next) {
   return res.status(404).json({
-    status: 404,
     message: 'Not Found',
   });
 });
@@ -35,7 +34,7 @@ app.use(function (req, res, next) {
 // error handler 500
 app.use(function (err, req, res, next) {
   return res.status(500).json({
-    error: err,
+    message: 'Internal Server Error',
   });
 });
 

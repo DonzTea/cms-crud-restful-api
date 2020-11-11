@@ -29,9 +29,7 @@ const read = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .json(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.json(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -70,9 +68,7 @@ const create = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -91,14 +87,17 @@ const update = asyncHandler(async (req, res) => {
       }),
     ]);
 
+    if (!targetUser) {
+      return res.status(404).json({
+        message: `User with id equals to ${req.params.id} is not found`,
+      });
+    }
+
     // if superadmin
     if (targetUser.id === 1) {
-      return res.status(400).json({
-        error: {
-          code: 400,
-          message: 'You are not allowed to delete superadmin',
-        },
-      });
+      return res
+        .status(400)
+        .json({ message: 'You are not allowed to delete superadmin' });
     }
 
     const currentUserRoles = await currentUser
@@ -139,13 +138,12 @@ const update = asyncHandler(async (req, res) => {
         await targetUser.setRoles([targetUserRole.id]);
       }
     } else {
-      return res.status(403).json({
-        error: {
-          code: 403,
+      return res
+        .status(403)
+        .json({
           message:
             "You're not able to update role, only admin and owner are authorized",
-        },
-      });
+        });
     }
 
     return res.status(200).json({
@@ -153,9 +151,7 @@ const update = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -164,13 +160,10 @@ const destroy = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     // if superadmin
-    if (id === 1) {
-      return res.status(400).json({
-        error: {
-          code: 400,
-          message: 'You are not allowed to delete superadmin',
-        },
-      });
+    if (parseInt(id) === 1) {
+      return res
+        .status(400)
+        .json({ message: 'You are not allowed to delete superadmin' });
     }
 
     await User.destroy({
@@ -184,9 +177,7 @@ const destroy = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -196,9 +187,7 @@ const detail = asyncHandler(async (req, res) => {
     const user = await User.findByPk(id);
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ error: { code: 400, message: 'Not Found' } });
+      return res.status(400).json({ message: 'Not Found' });
     }
 
     const [roles, articles] = await Promise.all([
@@ -222,9 +211,7 @@ const detail = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -234,9 +221,7 @@ const self = asyncHandler(async (req, res) => {
     const user = await User.findByPk(id);
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ error: { code: 400, message: 'Not Found' } });
+      return res.status(400).json({ message: 'Not Found' });
     }
 
     const [roles, articles] = await Promise.all([
@@ -260,9 +245,7 @@ const self = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

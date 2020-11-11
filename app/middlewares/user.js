@@ -136,20 +136,15 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
 
     if (errors.length > 0) {
       return res.status(400).json({
-        error: {
-          code: 400,
-          message: 'Bad Input, duplicate user data',
-          errors,
-        },
+        message: 'Bad Input, duplicate user data',
+        errors,
       });
     }
 
     next();
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -158,10 +153,7 @@ const isRolesValid = asyncHandler(async (req, res, next) => {
     for (let i = 0; i < req.body.roles.length; i++) {
       if (!roles.includes(req.body.roles[i].toUpperCase())) {
         return res.status(400).json({
-          error: {
-            code: 400,
-            message: 'Does not exist Role = ' + req.body.roles[i],
-          },
+          message: 'Does not exist Role = ' + req.body.roles[i],
         });
       }
     }
@@ -183,16 +175,11 @@ const isAdmin = asyncHandler(async (req, res, next) => {
     }
 
     return res.status(403).json({
-      error: {
-        code: 403,
-        message: 'you are not admin, access denied',
-      },
+      message: 'you are not admin, access denied',
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -214,13 +201,11 @@ const isAuthorized = asyncHandler(async (req, res, next) => {
     }
 
     return res.status(403).json({
-      error: { code: 403, message: 'You are not authorized, access denied' },
+      message: 'You are not authorized, access denied',
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

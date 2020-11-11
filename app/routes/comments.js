@@ -35,7 +35,7 @@ router
     '/:commentId',
     [
       authMiddleware.verifyToken,
-      commentMiddleware.isAuthorized,
+      authMiddleware.isAdmin,
       commentMiddleware.checkParamCommentId,
     ],
     commentController.destroy,

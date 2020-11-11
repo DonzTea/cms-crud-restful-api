@@ -56,13 +56,11 @@ const isAuthorized = asyncHandler(async (req, res, next) => {
     }
 
     return res.status(403).json({
-      error: { code: 403, message: 'You are not authorized, access denied' },
+      message: 'You are not authorized, access denied',
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

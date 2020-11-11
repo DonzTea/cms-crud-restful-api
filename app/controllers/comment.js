@@ -16,9 +16,7 @@ const read = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -34,10 +32,7 @@ const create = asyncHandler(async (req, res) => {
 
     if (!article) {
       return res.status(404).json({
-        error: {
-          code: 404,
-          message: `Article with id equals to ${articleId} is not found`,
-        },
+        message: `Article with id equals to ${articleId} is not found`,
       });
     }
 
@@ -45,14 +40,13 @@ const create = asyncHandler(async (req, res) => {
       comment.setArticle(article),
       comment.setUser(req.userId),
     ]);
+
     return res.status(201).json({
       comment,
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -64,13 +58,11 @@ const update = asyncHandler(async (req, res) => {
     await Comment.update({ content }, { where: { id: commentId } });
 
     return res.status(200).json({
-      message: `Comment with id equals to ${comment.id} was successfully updated`,
+      message: `Comment with id equals to ${commentId} was successfully updated`,
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -79,13 +71,11 @@ const destroy = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
     await Comment.destroy({ where: { id: commentId } });
     return res.status(200).json({
-      message: `Comment with id equals to ${comment.id} was successfully deleted`,
+      message: `Comment with id equals to ${commentId} was successfully deleted`,
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

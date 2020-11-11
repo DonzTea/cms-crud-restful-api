@@ -23,9 +23,7 @@ const read = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -42,9 +40,7 @@ const create = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -61,9 +57,7 @@ const update = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -82,9 +76,7 @@ const destroy = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -102,9 +94,7 @@ const detail = asyncHandler(async (req, res) => {
     });
 
     if (article === null) {
-      return res
-        .status(400)
-        .json({ error: { code: 400, message: 'Not Found' } });
+      return res.status(400).json({ message: 'Not Found' });
     }
 
     return res.status(200).json({
@@ -117,9 +107,7 @@ const detail = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -139,9 +127,7 @@ const mine = asyncHandler(async (req, res) => {
     return res.status(200).json({ articles });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
