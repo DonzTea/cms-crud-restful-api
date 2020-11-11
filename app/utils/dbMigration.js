@@ -16,15 +16,14 @@ async function initial() {
         email: 'admin@gmail.com',
         password: hashedPassword,
       }),
-      Role.findOne({ where: { name: 'ADMIN' } }),
-      Role.create({
-        name: 'USER',
-      }),
       Role.create({
         name: 'ADMIN',
       }),
       Role.create({
         name: 'PM',
+      }),
+      Role.create({
+        name: 'USER',
       }),
     ]);
 
