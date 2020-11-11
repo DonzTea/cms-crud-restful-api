@@ -423,9 +423,17 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "",
-            "headers": {}
+          "201": {
+            "description": "article created"
+          },
+          "400": {
+            "description": "required request body is missing or does not meet standards"
+          },
+          "403": {
+            "description": "no token provided"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false
@@ -437,8 +445,10 @@
         "operationId": "ReadArticles",
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "read articles success"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -457,8 +467,13 @@
         ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "read current login user article success"
+          },
+          "403": {
+            "description": "no token provided"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false
@@ -484,8 +499,16 @@
         ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "read an article success"
+          },
+          "400": {
+            "description": "no param id provided"
+          },
+          "404": {
+            "description": "article not found"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -528,8 +551,16 @@
         },
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "article updated"
+          },
+          "400": {
+            "description": "no param id provided, required request body is missing, or does not meet standards"
+          },
+          "403": {
+            "description": "no token provided, not an admin, or not an owner"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false
@@ -558,8 +589,16 @@
         ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "article deleted"
+          },
+          "400": {
+            "description": "no param id provided"
+          },
+          "403": {
+            "description": "no token provided, not an admin, or not an owner"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false
@@ -603,9 +642,20 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "",
-            "headers": {}
+          "201": {
+            "description": "comment created"
+          },
+          "400": {
+            "description": "no param articleId provided, required request body is missing, or does not meet standards"
+          },
+          "403": {
+            "description": "no token provided"
+          },
+          "404": {
+            "description": "article not found"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false,
@@ -635,8 +685,16 @@
         ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "read comments of an article success"
+          },
+          "400": {
+            "description": "no param articleId provided"
+          },
+          "404": {
+            "description": "article not found"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false,
@@ -687,8 +745,16 @@
         },
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "comment updated"
+          },
+          "400": {
+            "description": "no param commentId provided"
+          },
+          "403": {
+            "description": "no token provided, not an admin, or not an owner"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false,
@@ -723,8 +789,16 @@
         ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "comment deleted"
+          },
+          "400": {
+            "description": "no param commentId provided"
+          },
+          "403": {
+            "description": "no token provided or not an admin"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false,

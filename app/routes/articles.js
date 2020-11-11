@@ -18,16 +18,25 @@ router
     [
       authMiddleware.verifyToken,
       articleMiddleware.isAuthorized,
+      articleMiddleware.checkParamIdExistence,
       articleMiddleware.updateArticleBodyValidation,
     ],
     articleController.update,
   )
   .delete(
     '/:id',
-    [authMiddleware.verifyToken, articleMiddleware.isAuthorized],
+    [
+      authMiddleware.verifyToken,
+      articleMiddleware.isAuthorized,
+      articleMiddleware.checkParamIdExistence,
+    ],
     articleController.destroy,
   )
   .get('/mine', [authMiddleware.verifyToken], articleController.mine)
-  .get('/:id', articleController.detail);
+  .get(
+    '/:id',
+    [articleMiddleware.checkParamIdExistence],
+    articleController.detail,
+  );
 
 module.exports = router;

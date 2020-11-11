@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
 const { validate } = require('../utils/middleware.js');
@@ -74,8 +74,16 @@ const isAuthorized = asyncHandler(async (req, res, next) => {
   }
 });
 
+const checkParamIdExistence = validate([
+  param('id')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail(),
+]);
+
 module.exports = {
   createArticleBodyValidation,
   updateArticleBodyValidation,
   isAuthorized,
+  checkParamIdExistence,
 };

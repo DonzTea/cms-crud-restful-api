@@ -94,7 +94,7 @@ const detail = asyncHandler(async (req, res) => {
     });
 
     if (article === null) {
-      return res.status(400).json({ message: 'Not Found' });
+      return res.status(404).json({ message: 'Not Found' });
     }
 
     return res.status(200).json({

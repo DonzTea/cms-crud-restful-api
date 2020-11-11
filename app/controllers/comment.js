@@ -9,6 +9,13 @@ const read = asyncHandler(async (req, res) => {
   try {
     const { articleId } = req.params;
     const article = await Article.findByPk(articleId);
+
+    if (!article) {
+      return res.status(404).json({
+        message: `Article with id equals to ${articleId} is not found`,
+      });
+    }
+
     const comments = await article.getComments();
 
     return res.status(200).json({
