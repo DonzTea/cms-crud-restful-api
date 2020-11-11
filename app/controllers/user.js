@@ -24,10 +24,8 @@ const read = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: {
-        description: 'All User',
-        user,
-      },
+      description: 'All User',
+      user,
     });
   } catch (error) {
     console.error(error);
@@ -68,7 +66,7 @@ const create = asyncHandler(async (req, res) => {
     }
 
     return res.status(201).json({
-      data: 'User has been created',
+      message: 'User has been created',
     });
   } catch (error) {
     console.error(error);
@@ -151,7 +149,7 @@ const update = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json({
-      data: 'User has been updated',
+      message: 'User has been updated',
     });
   } catch (error) {
     console.error(error);
@@ -182,7 +180,7 @@ const destroy = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: 'User has been deleted',
+      message: 'User has been deleted',
     });
   } catch (error) {
     console.error(error);
@@ -213,16 +211,14 @@ const detail = asyncHandler(async (req, res) => {
     ]);
 
     return res.status(200).json({
-      data: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        roles,
-        articles,
-      },
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      roles,
+      articles,
     });
   } catch (error) {
     console.error(error);
@@ -253,16 +249,14 @@ const self = asyncHandler(async (req, res) => {
     ]);
 
     return res.status(200).json({
-      data: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        roles,
-        articles,
-      },
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      roles,
+      articles,
     });
   } catch (error) {
     console.error(error);

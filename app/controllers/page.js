@@ -22,10 +22,8 @@ const user = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: {
-        description: 'User Content Page',
-        user,
-      },
+      description: 'User Content Page',
+      user,
     });
   } catch (error) {
     console.error(error);
@@ -52,10 +50,8 @@ const admin = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: {
-        description: 'Admin Board',
-        user,
-      },
+      description: 'Admin Board',
+      user,
     });
   } catch (error) {
     console.error(error);
@@ -82,10 +78,8 @@ const pm = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: {
-        description: 'Management Board',
-        user,
-      },
+      description: 'Management Board',
+      user,
     });
   } catch (error) {
     console.error(error);

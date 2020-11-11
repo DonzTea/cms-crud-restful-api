@@ -12,7 +12,7 @@ const read = asyncHandler(async (req, res) => {
     const comments = await article.getComments();
 
     return res.status(200).json({
-      data: comments,
+      comments,
     });
   } catch (error) {
     console.error(error);
@@ -46,7 +46,7 @@ const create = asyncHandler(async (req, res) => {
       comment.setUser(req.userId),
     ]);
     return res.status(201).json({
-      data: comment,
+      comment,
     });
   } catch (error) {
     console.error(error);
@@ -64,7 +64,7 @@ const update = asyncHandler(async (req, res) => {
     await Comment.update({ content }, { where: { id: commentId } });
 
     return res.status(200).json({
-      data: `Comment with id equals to ${comment.id} was successfully updated`,
+      message: `Comment with id equals to ${comment.id} was successfully updated`,
     });
   } catch (error) {
     console.error(error);
@@ -79,7 +79,7 @@ const destroy = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
     await Comment.destroy({ where: { id: commentId } });
     return res.status(200).json({
-      data: `Comment with id equals to ${comment.id} was successfully deleted`,
+      message: `Comment with id equals to ${comment.id} was successfully deleted`,
     });
   } catch (error) {
     console.error(error);

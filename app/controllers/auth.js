@@ -31,7 +31,7 @@ const signup = asyncHandler(async (req, res) => {
     await createdUser.setRoles([userRole.id]);
 
     return res.status(201).json({
-      data: 'User registered successfully!',
+      message: 'User registered successfully!',
     });
   } catch (error) {
     console.error(error);
@@ -52,11 +52,9 @@ const signin = asyncHandler(async (req, res) => {
     });
     if (!user) {
       return res.status(404).json({
-        data: {
-          auth: false,
-          accessToken: null,
-          reason: 'User Not Found!',
-        },
+        auth: false,
+        accessToken: null,
+        reason: 'User Not Found!',
       });
     }
 
@@ -66,11 +64,9 @@ const signin = asyncHandler(async (req, res) => {
     );
     if (!passwordIsValid) {
       return res.status(401).json({
-        data: {
-          auth: false,
-          accessToken: null,
-          reason: 'Invalid Password!',
-        },
+        auth: false,
+        accessToken: null,
+        reason: 'Invalid Password!',
       });
     }
 
@@ -82,12 +78,10 @@ const signin = asyncHandler(async (req, res) => {
       expiresIn: '1 days',
     });
     return res.status(200).json({
-      data: {
-        auth: true,
-        type: 'Bearer',
-        accessToken: token,
-        roles,
-      },
+      auth: true,
+      type: 'Bearer',
+      accessToken: token,
+      roles,
     });
   } catch (error) {
     console.error(error);

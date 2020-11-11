@@ -18,10 +18,8 @@ const read = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: {
-        description: 'All Article',
-        article,
-      },
+      description: 'All Article',
+      article,
     });
   } catch (error) {
     console.error(error);
@@ -40,7 +38,7 @@ const create = asyncHandler(async (req, res) => {
     });
 
     return res.status(201).json({
-      data: 'Article has been created',
+      message: 'Article has been created',
     });
   } catch (error) {
     console.error(error);
@@ -59,7 +57,7 @@ const update = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: 'Article has been updated',
+      message: 'Article has been updated',
     });
   } catch (error) {
     console.error(error);
@@ -80,7 +78,7 @@ const destroy = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      data: 'Article has been deleted',
+      message: 'Article has been deleted',
     });
   } catch (error) {
     console.error(error);
@@ -110,14 +108,12 @@ const detail = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json({
-      data: {
-        id: article.id,
-        title: article.title,
-        content: article.content,
-        createdAt: article.createdAt,
-        updatedAt: article.updatedAt,
-        author: article.user,
-      },
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      createdAt: article.createdAt,
+      updatedAt: article.updatedAt,
+      author: article.user,
     });
   } catch (error) {
     console.error(error);
@@ -140,7 +136,7 @@ const mine = asyncHandler(async (req, res) => {
         updatedAt: article.updatedAt,
       })),
     );
-    return res.status(200).json({ data: articles });
+    return res.status(200).json({ articles });
   } catch (error) {
     console.error(error);
     return res
