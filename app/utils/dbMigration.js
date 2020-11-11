@@ -9,13 +9,14 @@ async function initial() {
   try {
     const password = '12345678';
     const hashedPassword = await bcrypt.hash(password, 8);
-    const [admin] = await Promise.all([
+    const [admin, adminRole] = await Promise.all([
       User.create({
         name: 'admin',
         username: 'admin',
         email: 'admin@gmail.com',
         password: hashedPassword,
       }),
+      Role.findOne({ where: { name: 'ADMIN' } }),
       Role.create({
         name: 'USER',
       }),
@@ -27,7 +28,6 @@ async function initial() {
       }),
     ]);
 
-    const adminRole = await Role.findOne({ where: { name: 'ADMIN' } });
     await admin.setRoles([adminRole.id]);
   } catch (error) {
     console.error(error);
