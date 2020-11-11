@@ -23,7 +23,7 @@ git clone https://gitlab.com/DonzTea/geek-portal-training.git
 2.  Enter the cloned project with this command :
 
 ```
-cd cms-crud-restful-api
+cd geek-portal-training
 ```
 
 3. Checkout to tugas2 branch with this command :
