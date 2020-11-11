@@ -17,7 +17,7 @@ CMS CRUD Restful API with authentication and authorization. Using PostgreSQL as 
 1. Open terminal, then execute this command :
 
 ```
-git clone git@github.com:DonzTea/cms-crud-restful-api.git
+git clone https://gitlab.com/DonzTea/geek-portal-training.git
 ```
 
 2.  Enter the cloned project with this command :
@@ -26,15 +26,21 @@ git clone git@github.com:DonzTea/cms-crud-restful-api.git
 cd cms-crud-restful-api
 ```
 
-3.  Install packages and dependencies with this command :
+3. Checkout to tugas2 branch with this command :
+
+```
+git checkout tugas2
+```
+
+4.  Install packages and dependencies with this command :
 
 ```
 npm install
 ```
 
-4.  Rename `.env.example` file to `.env`
+5.  Rename `.env.example` file to `.env`
 
-5.  Open `.env` file, set environment variables as you wish, then save.
+6.  Open `.env` file, set environment variables as you wish, then save.
 
 ## Running Server Locally
 
