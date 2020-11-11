@@ -105,9 +105,10 @@ const update = asyncHandler(async (req, res) => {
       .then((roles) => roles.map((role) => role.name));
 
     if (
-      currentUserRoles &&
-      currentUserRoles.length > 0 &&
-      currentUserRoles.includes('ADMIN')
+      currentUser.id === req.userId ||
+      (currentUserRoles &&
+        currentUserRoles.length > 0 &&
+        currentUserRoles.includes('ADMIN'))
     ) {
       if (req.body.password) {
         req.body.password = await bcrypt.hash(req.body.password, 8);
@@ -130,20 +131,25 @@ const update = asyncHandler(async (req, res) => {
         ]);
         await targetUser.setRoles(targetUserRoles);
       } else {
-        const targetUserRole = await Role.findOne({
-          where: {
-            name: 'USER',
-          },
-        });
+        const [targetUserRole] = await Promise.all([
+          Role.findOne({
+            where: {
+              name: 'USER',
+            },
+          }),
+          User.update(req.body, {
+            where: {
+              id: req.params.id,
+            },
+          }),
+        ]);
         await targetUser.setRoles([targetUserRole.id]);
       }
     } else {
-      return res
-        .status(403)
-        .json({
-          message:
-            "You're not able to update role, only admin and owner are authorized",
-        });
+      return res.status(403).json({
+        message:
+          "You're not able to update role, only admin and owner are authorized",
+      });
     }
 
     return res.status(200).json({

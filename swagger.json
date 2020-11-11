@@ -373,6 +373,118 @@
         },
         "deprecated": false
       }
+    },
+    "/api/comments/{article_id}": {
+      "post": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Create comment",
+        "description": "Create a new comment based on an article",
+        "operationId": "Createcomment",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatecommentRequest"
+              },
+              "example": {
+                "content": "pertamax"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://localhost:3000/api/comments",
+            "variables": {}
+          }
+        ]
+      },
+      "get": {
+        "tags": ["Public", "Admin", "PM", "User"],
+        "summary": "Read comments",
+        "description": "Read comments based on an article",
+        "operationId": "Readcomments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://localhost:3000/api/comments",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/comments/{comment_id}": {
+      "put": {
+        "tags": ["Admin", "Owner"],
+        "summary": "Update comment",
+        "description": "Update a comment of an article",
+        "operationId": "Updatecomment",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatecommentRequest"
+              },
+              "example": {
+                "content": "premium"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://localhost:3000/api/comments",
+            "variables": {}
+          }
+        ]
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Delete comment",
+        "description": "Delete a comment of an article for admin role",
+        "operationId": "Deletecomment",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://localhost:3000/api/comments",
+            "variables": {}
+          }
+        ]
+      }
     }
   },
   "components": {
