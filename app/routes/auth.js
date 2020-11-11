@@ -12,7 +12,6 @@ router
     [
       authMiddleware.signupBodyValidation,
       userMiddleware.checkDuplicateUsernameOrEmail,
-      userMiddleware.isRolesValid,
     ],
     authController.signup,
   )

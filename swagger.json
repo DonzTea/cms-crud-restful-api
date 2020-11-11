@@ -1,19 +1,26 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Restful API",
+    "title": "CRUD Restful API using Sequelize and Swagger",
+    "description": "CMS CRUD Restful API with authentication and authorization. Using PostgreSQL as DBMS and Sequelize as its ORM. Documentation is served using Swagger.",
     "contact": {
       "name": "Doni Rahma Tiana",
       "email": "donirahmatiana@gmail.com"
+    },
+    "license": {
+      "name": "ISC",
+      "url": "https://opensource.org/licenses/ISC"
     },
     "version": "1.0"
   },
   "servers": [
     {
-      "url": "https://mighty-eyrie-29994.herokuapp.com"
+      "url": "https://mighty-eyrie-29994.herokuapp.com",
+      "description": "Production server"
     },
     {
-      "url": "http://localhost:3000"
+      "url": "http://localhost:3000",
+      "description": "Development server"
     }
   ],
   "paths": {
@@ -23,7 +30,7 @@
         "summary": "Signup",
         "description": "Register user's account.",
         "operationId": "Signup",
-        "parameters": [],
+        "consumes": ["application/json"],
         "requestBody": {
           "description": "",
           "content": {
@@ -43,9 +50,14 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "",
-            "headers": {}
+          "201": {
+            "description": "account successfully registered"
+          },
+          "400": {
+            "description": "required request body is missing, does not meet standards, or duplicate account were found"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -57,7 +69,6 @@
         "summary": "Signin",
         "description": "Login user's account into system.",
         "operationId": "Signin",
-        "parameters": [],
         "requestBody": {
           "description": "",
           "content": {
@@ -75,8 +86,19 @@
         },
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "login success"
+          },
+          "400": {
+            "description": "required request body is missing or does not meet standards"
+          },
+          "401": {
+            "description": "invalid password"
+          },
+          "404": {
+            "description": "user not found"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -87,12 +109,21 @@
         "tags": ["Admin"],
         "summary": "Admin page",
         "description": "This page is authorized for admin.",
-        "operationId": "Adminpage",
-        "parameters": [],
+        "operationId": "AdminPage",
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "authentication as admin success"
+          },
+          "403": {
+            "description": "no token provided"
+          },
+          "500": {
+            "description": "authentication failed"
           }
         },
         "deprecated": false
@@ -103,12 +134,21 @@
         "tags": ["PM"],
         "summary": "PM page",
         "description": "This page is authorized for Project Manager.",
-        "operationId": "PMpage",
-        "parameters": [],
+        "operationId": "PmPage",
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "authentication as PM success"
+          },
+          "403": {
+            "description": "no token provided"
+          },
+          "500": {
+            "description": "authentication failed"
           }
         },
         "deprecated": false
@@ -119,12 +159,21 @@
         "tags": ["User"],
         "summary": "User page",
         "description": "This page is authorized for users.",
-        "operationId": "Userpage",
-        "parameters": [],
+        "operationId": "UserPage",
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "authentication as user success"
+          },
+          "403": {
+            "description": "no token provided"
+          },
+          "500": {
+            "description": "authentication failed"
           }
         },
         "deprecated": false
@@ -135,8 +184,12 @@
         "tags": ["Admin"],
         "summary": "Create user",
         "description": "Create a new user.",
-        "operationId": "Createuser",
-        "parameters": [],
+        "operationId": "CreateUser",
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
@@ -156,9 +209,17 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "",
-            "headers": {}
+          "201": {
+            "description": "user created"
+          },
+          "400": {
+            "description": "required request body is missing, does not meet standards, or duplicate account were found"
+          },
+          "403": {
+            "description": "no token provided or not an admin"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false
@@ -167,12 +228,13 @@
         "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read users",
         "description": "Get all users.",
-        "operationId": "Readusers",
-        "parameters": [],
+        "operationId": "ReadUsers",
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "read users success"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -183,12 +245,31 @@
         "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read user",
         "description": "reading a user data with specifying id as request header.",
-        "operationId": "Readuser",
-        "parameters": [],
+        "operationId": "ReadUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "description": "id of a user",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "read user detail success"
+          },
+          "400": {
+            "description": "no param id provided"
+          },
+          "404": {
+            "description": "user not found"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -197,8 +278,24 @@
         "tags": ["Admin", "Owner"],
         "summary": "Update user",
         "description": "update user data with specifying id as request header.",
-        "operationId": "Updateuser",
-        "parameters": [],
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "description": "id of a user",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
@@ -218,8 +315,16 @@
         },
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "user updated"
+          },
+          "400": {
+            "description": "no param id provided, required request body is missing, does not meet standards, duplicate account were found, or intended to delete superadmin"
+          },
+          "403": {
+            "description": "no token provided, not an admin, or not an owner"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false
@@ -228,12 +333,36 @@
         "tags": ["Admin", "Owner"],
         "summary": "Delete user",
         "description": "delete a user with specifying id as request header.",
-        "operationId": "Deleteuser",
-        "parameters": [],
+        "operationId": "DeleteUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "description": "id of a user",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "user deleted"
+          },
+          "400": {
+            "description": "no param id provided or intended to delete superadmin"
+          },
+          "403": {
+            "description": "no token provided, not an admin, or not an owner"
+          },
+          "500": {
+            "description": "authentication failed or server error"
           }
         },
         "deprecated": false
@@ -244,12 +373,24 @@
         "tags": ["Admin", "PM", "User", "Owner"],
         "summary": "Read self",
         "description": "Reading current user data.",
-        "operationId": "Readself",
-        "parameters": [],
+        "operationId": "ReadSelf",
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "headers": {}
+            "description": "read self account detail success"
+          },
+          "403": {
+            "description": "no token provided"
+          },
+          "404": {
+            "description": "user not found"
+          },
+          "500": {
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -260,8 +401,12 @@
         "tags": ["Admin", "PM", "User"],
         "summary": "Create article",
         "description": "Create a new article.",
-        "operationId": "Createarticle",
-        "parameters": [],
+        "operationId": "CreateArticle",
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
@@ -289,8 +434,7 @@
         "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read articles",
         "description": "Get all articles.",
-        "operationId": "Readarticles",
-        "parameters": [],
+        "operationId": "ReadArticles",
         "responses": {
           "200": {
             "description": "",
@@ -305,8 +449,12 @@
         "tags": ["Admin", "PM", "User", "Owner"],
         "summary": "Read my article",
         "description": "Get all articles of current user.",
-        "operationId": "Readmyarticle",
-        "parameters": [],
+        "operationId": "ReadMyArticle",
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -321,8 +469,19 @@
         "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read article",
         "description": "Get an article with specifying id as request header.",
-        "operationId": "Readarticle",
-        "parameters": [],
+        "operationId": "ReadArticle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "article_id",
+            "required": true,
+            "description": "id of an article",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -335,8 +494,24 @@
         "tags": ["Admin", "Owner"],
         "summary": "Update article",
         "description": "update an article with specifying id as request header if current user have authorization.",
-        "operationId": "Updatearticle",
-        "parameters": [],
+        "operationId": "UpdateArticle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "article_id",
+            "required": true,
+            "description": "id of an article",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
@@ -363,8 +538,24 @@
         "tags": ["Admin", "Owner"],
         "summary": "Delete article",
         "description": "delete an article with specifying id as request header if user have authorization.",
-        "operationId": "Deletearticle",
-        "parameters": [],
+        "operationId": "DeleteArticle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "article_id",
+            "required": true,
+            "description": "id of an article",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -379,14 +570,30 @@
         "tags": ["Admin", "PM", "User"],
         "summary": "Create comment",
         "description": "Create a new comment based on an article",
-        "operationId": "Createcomment",
-        "parameters": [],
+        "operationId": "CreateComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "article_id",
+            "required": true,
+            "description": "id of an article",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreatecommentRequest"
+                "$ref": "#/components/schemas/CreateCommentRequest"
               },
               "example": {
                 "content": "pertamax"
@@ -413,8 +620,19 @@
         "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read comments",
         "description": "Read comments based on an article",
-        "operationId": "Readcomments",
-        "parameters": [],
+        "operationId": "ReadComments",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "article_id",
+            "required": true,
+            "description": "id of an article",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -435,14 +653,30 @@
         "tags": ["Admin", "Owner"],
         "summary": "Update comment",
         "description": "Update a comment of an article",
-        "operationId": "Updatecomment",
-        "parameters": [],
+        "operationId": "UpdateComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "comment_id",
+            "required": true,
+            "description": "id of an comment",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdatecommentRequest"
+                "$ref": "#/components/schemas/UpdateCommentRequest"
               },
               "example": {
                 "content": "premium"
@@ -469,8 +703,24 @@
         "tags": ["Admin"],
         "summary": "Delete comment",
         "description": "Delete a comment of an article for admin role",
-        "operationId": "Deletecomment",
-        "parameters": [],
+        "operationId": "DeleteComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "comment_id",
+            "required": true,
+            "description": "id of an comment",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -543,7 +793,7 @@
       },
       "CreateUserRequest": {
         "title": "CreateUserRequest",
-        "required": ["name", "username", "email", "password", "roles"],
+        "required": ["name", "username", "email", "password"],
         "type": "object",
         "properties": {
           "name": {
@@ -563,7 +813,7 @@
             "items": {
               "type": "string"
             },
-            "description": ""
+            "description": "roles element can be either ADMIN, PM, or USER"
           }
         },
         "example": {
@@ -576,7 +826,6 @@
       },
       "UpdateUserRequest": {
         "title": "UpdateUserRequest",
-        "required": ["name", "username", "email", "password"],
         "type": "object",
         "properties": {
           "name": {
@@ -593,10 +842,10 @@
           }
         },
         "example": {
-          "name": "doniPM Updated",
-          "username": "DoniPM",
-          "email": "doniiPM@gmail.com",
-          "password": "donipm$$"
+          "name": "Updated Doni PM",
+          "username": "updatedDoniPM",
+          "email": "updatedDoniPM@gmail.com",
+          "password": "updateddonipm"
         }
       },
       "CreateArticleRequest": {
@@ -612,36 +861,61 @@
           }
         },
         "example": {
-          "title": "New Admin's Title",
-          "content": "article content"
+          "title": "Article Title",
+          "content": "Article content"
         }
       },
       "UpdateArticleRequest": {
         "title": "UpdateArticleRequest",
-        "required": ["title"],
         "type": "object",
         "properties": {
           "title": {
             "type": "string"
+          },
+          "content": {
+            "type": "string"
           }
         },
         "example": {
-          "title": "New Title Updated"
+          "title": "Updated Article Title",
+          "content": "Updated article content"
+        }
+      },
+      "CreateCommentRequest": {
+        "title": "CreateCommentRequest",
+        "required": ["content"],
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "content": "pertamax"
+        }
+      },
+      "UpdateCommentRequest": {
+        "title": "UpdateCommentRequest",
+        "required": ["content"],
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "content": "premium"
         }
       }
     },
     "securitySchemes": {
       "httpBearer": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   },
-  "security": [
-    {
-      "httpBearer": []
-    }
-  ],
   "tags": [
     {
       "name": "Public",

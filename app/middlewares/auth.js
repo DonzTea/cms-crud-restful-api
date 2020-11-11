@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config.js');
 const User = require('../config/db.js').user;
 const { validate } = require('../utils/middleware.js');
-const arrayUtil = require('../utils/array.js');
 
 const signupBodyValidation = validate([
   body('name')
@@ -52,19 +51,6 @@ const signupBodyValidation = validate([
       }
       return value;
     }),
-  body('roles').optional().isArray().withMessage('is not an array'),
-  body('roles.*')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isIn(config.ROLES)
-    .withMessage(
-      `is expected to be ${arrayUtil.formatToReadableString(
-        config.ROLES,
-        'or',
-      )}`,
-    ),
 ]);
 
 const signinBodyValidation = validate([
@@ -92,7 +78,7 @@ const signinBodyValidation = validate([
 
 const verifyToken = asyncHandler(async (req, res, next) => {
   try {
-    let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
+    let token = req.headers['authorization']; // Express headers are auto converted to lowercase
     if (!token) {
       return res.status(403).json({
         auth: false,

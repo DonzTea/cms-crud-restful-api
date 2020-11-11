@@ -9,9 +9,6 @@ const User = db.user;
 const Role = db.role;
 
 const signup = asyncHandler(async (req, res) => {
-  // save user to database
-  console.log('Processing func -> signup');
-
   try {
     const password = await bcrypt.hash(req.body.password, 8);
     const [createdUser, userRole] = await Promise.all([
@@ -31,7 +28,7 @@ const signup = asyncHandler(async (req, res) => {
     await createdUser.setRoles([userRole.id]);
 
     return res.status(201).json({
-      message: 'User registered successfully!',
+      message: 'Account successfully registered',
     });
   } catch (error) {
     console.error(error);
@@ -40,8 +37,6 @@ const signup = asyncHandler(async (req, res) => {
 });
 
 const signin = asyncHandler(async (req, res) => {
-  console.log('Sign-In');
-
   try {
     const user = await User.findOne({
       where: {

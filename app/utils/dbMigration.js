@@ -36,7 +36,6 @@ async function initial() {
 module.exports = () => {
   // force: true will drop the table if it already exists(comment this part after first run, to disable migration)
   db.sequelize.sync({ force: true }).then(async () => {
-    console.log('Drop and Resync with { force: true }');
     await initial();
   });
 };

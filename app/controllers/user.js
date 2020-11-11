@@ -193,7 +193,7 @@ const detail = asyncHandler(async (req, res) => {
     const user = await User.findByPk(id);
 
     if (!user) {
-      return res.status(400).json({ message: 'Not Found' });
+      return res.status(404).json({ message: 'Not Found' });
     }
 
     const [roles, articles] = await Promise.all([
@@ -227,7 +227,7 @@ const self = asyncHandler(async (req, res) => {
     const user = await User.findByPk(id);
 
     if (!user) {
-      return res.status(400).json({ message: 'Not Found' });
+      return res.status(404).json({ message: 'Not Found' });
     }
 
     const [roles, articles] = await Promise.all([
