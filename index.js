@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // roles table seeder
-require('./app/utils/dbMigration.js')();
+// require('./app/utils/dbMigration.js')();
 
 // routes caller
 require('./app/routes/main.js')(app);
