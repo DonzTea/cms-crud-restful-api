@@ -164,7 +164,7 @@
         "deprecated": false
       },
       "get": {
-        "tags": ["Admin", "PM", "User"],
+        "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read users",
         "description": "Get all users.",
         "operationId": "Readusers",
@@ -180,7 +180,7 @@
     },
     "/api/users/{user_id}": {
       "get": {
-        "tags": ["Admin", "PM", "User"],
+        "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read user",
         "description": "reading a user data with specifying id as request header.",
         "operationId": "Readuser",
@@ -241,7 +241,7 @@
     },
     "/api/users/self": {
       "get": {
-        "tags": ["Admin", "PM", "User"],
+        "tags": ["Admin", "PM", "User", "Owner"],
         "summary": "Read self",
         "description": "Reading current user data.",
         "operationId": "Readself",
@@ -286,7 +286,7 @@
         "deprecated": false
       },
       "get": {
-        "tags": ["Admin", "PM", "User"],
+        "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read articles",
         "description": "Get all articles.",
         "operationId": "Readarticles",
@@ -302,7 +302,7 @@
     },
     "/api/articles/mine": {
       "get": {
-        "tags": ["Admin", "PM", "User"],
+        "tags": ["Admin", "PM", "User", "Owner"],
         "summary": "Read my article",
         "description": "Get all articles of current user.",
         "operationId": "Readmyarticle",
@@ -318,7 +318,7 @@
     },
     "/api/articles/{article_id}": {
       "get": {
-        "tags": ["Admin", "PM", "User"],
+        "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Read article",
         "description": "Get an article with specifying id as request header.",
         "operationId": "Readarticle",

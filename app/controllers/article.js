@@ -5,7 +5,7 @@ const db = require('../config/db.js');
 const User = db.user;
 const Article = db.article;
 
-const articles = asyncHandler(async (req, res) => {
+const read = asyncHandler(async (req, res) => {
   try {
     const article = await Article.findAll({
       attributes: ['id', 'title', 'content'],
@@ -18,8 +18,10 @@ const articles = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      description: 'All Article',
-      article,
+      data: {
+        description: 'All Article',
+        article,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -38,8 +40,7 @@ const create = asyncHandler(async (req, res) => {
     });
 
     return res.status(201).json({
-      status: 201,
-      message: 'Article has been created',
+      data: 'Article has been created',
     });
   } catch (error) {
     console.error(error);
@@ -58,8 +59,7 @@ const update = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      status: 200,
-      message: 'Article has been updated',
+      data: 'Article has been updated',
     });
   } catch (error) {
     console.error(error);
@@ -80,8 +80,7 @@ const destroy = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      status: 200,
-      message: 'Article has been deleted',
+      data: 'Article has been deleted',
     });
   } catch (error) {
     console.error(error);
@@ -151,7 +150,7 @@ const mine = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  articles,
+  read,
   create,
   update,
   destroy,

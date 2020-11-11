@@ -1,57 +1,47 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
 const { validate } = require('../utils/middleware.js');
 const db = require('../config/db.js');
 
 const User = db.user;
-const Article = db.article;
+const Comment = db.comment;
 
-const createArticleBodyValidation = validate([
-  body('title')
-    .exists({ checkFalsy: true, checkNull: true })
-    .withMessage('is not exists')
-    .bail()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 8 })
-    .withMessage('is expected to be at least 8 characters long'),
+const createCommentBodyValidation = validate([
   body('content')
     .exists({ checkFalsy: true, checkNull: true })
     .withMessage('is not exists')
     .bail()
     .isString()
     .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 8 })
-    .withMessage('is expected to be at least 8 characters long'),
+    .withMessage('is not a string'),
 ]);
 
-const updateArticleBodyValidation = validate([
-  body('title')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 8 })
-    .withMessage('is expected to be at least 8 characters long'),
-  body('content')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 8 })
-    .withMessage('is expected to be at least 8 characters long'),
+const updateCommentBodyValidation = validate([
+  body('content').optional().isString().trim().withMessage('is not a string'),
+]);
+
+const checkParamArticleId = validate([
+  param('articleId')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail(),
+]);
+
+const checkParamCommentId = validate([
+  param('commentId')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail(),
 ]);
 
 const isAuthorized = asyncHandler(async (req, res, next) => {
   try {
     const userIdPayload = req.userId;
 
-    const { id } = req.params;
-    const article = await Article.findByPk(id);
-    const owner = await article.getUser();
+    const { commentId } = req.params;
+    const comment = await Comment.findByPk(commentId);
+    const owner = await comment.getUser();
 
     if (userIdPayload === owner.id) {
       return next();
@@ -77,7 +67,9 @@ const isAuthorized = asyncHandler(async (req, res, next) => {
 });
 
 module.exports = {
-  createArticleBodyValidation,
-  updateArticleBodyValidation,
+  createCommentBodyValidation,
+  updateCommentBodyValidation,
+  checkParamArticleId,
+  checkParamCommentId,
   isAuthorized,
 };

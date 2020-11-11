@@ -30,7 +30,7 @@ const signup = asyncHandler(async (req, res) => {
 
     await createdUser.setRoles([userRole.id]);
 
-    return res.status(201).send({
+    return res.status(201).json({
       data: 'User registered successfully!',
     });
   } catch (error) {
@@ -51,10 +51,12 @@ const signin = asyncHandler(async (req, res) => {
       },
     });
     if (!user) {
-      return res.status(404).send({
-        auth: false,
-        accessToken: null,
-        reason: 'User Not Found!',
+      return res.status(404).json({
+        data: {
+          auth: false,
+          accessToken: null,
+          reason: 'User Not Found!',
+        },
       });
     }
 
@@ -63,10 +65,12 @@ const signin = asyncHandler(async (req, res) => {
       user.password,
     );
     if (!passwordIsValid) {
-      return res.status(401).send({
-        auth: false,
-        accessToken: null,
-        reason: 'Invalid Password!',
+      return res.status(401).json({
+        data: {
+          auth: false,
+          accessToken: null,
+          reason: 'Invalid Password!',
+        },
       });
     }
 
@@ -77,11 +81,13 @@ const signin = asyncHandler(async (req, res) => {
     const token = jwt.sign({ id: user.id }, config.secret, {
       expiresIn: '1 days',
     });
-    return res.status(200).send({
-      auth: true,
-      type: 'Bearer',
-      accessToken: token,
-      roles,
+    return res.status(200).json({
+      data: {
+        auth: true,
+        type: 'Bearer',
+        accessToken: token,
+        roles,
+      },
     });
   } catch (error) {
     console.error(error);

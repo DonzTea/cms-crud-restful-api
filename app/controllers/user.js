@@ -8,7 +8,7 @@ const { Op } = db.Sequelize;
 const User = db.user;
 const Role = db.role;
 
-const users = asyncHandler(async (req, res) => {
+const read = asyncHandler(async (req, res) => {
   try {
     const user = await User.findAll({
       attributes: ['id', 'name', 'username', 'email'],
@@ -24,8 +24,10 @@ const users = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      description: 'All User',
-      user,
+      data: {
+        description: 'All User',
+        user,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -66,8 +68,7 @@ const create = asyncHandler(async (req, res) => {
     }
 
     return res.status(201).json({
-      status: 201,
-      message: 'User has been created',
+      data: 'User has been created',
     });
   } catch (error) {
     console.error(error);
@@ -140,8 +141,7 @@ const update = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json({
-      status: 200,
-      message: 'User has been updated',
+      data: 'User has been updated',
     });
   } catch (error) {
     console.error(error);
@@ -162,8 +162,7 @@ const destroy = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      status: 200,
-      message: 'User has been deleted',
+      data: 'User has been deleted',
     });
   } catch (error) {
     console.error(error);
@@ -253,98 +252,11 @@ const self = asyncHandler(async (req, res) => {
   }
 });
 
-const userContent = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findOne({
-      where: { id: req.userId },
-      attributes: ['name', 'username', 'email'],
-      include: [
-        {
-          model: Role,
-          attributes: ['id', 'name'],
-          through: {
-            attributes: ['userId', 'roleId'],
-          },
-        },
-      ],
-    });
-
-    return res.status(200).json({
-      description: 'User Content Page',
-      user,
-    });
-  } catch (error) {
-    console.error(error);
-    return res
-      .json(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
-  }
-});
-
-const adminBoard = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findOne({
-      where: { id: req.userId },
-      attributes: ['name', 'username', 'email'],
-      include: [
-        {
-          model: Role,
-          attributes: ['id', 'name'],
-          through: {
-            attributes: ['userId', 'roleId'],
-          },
-        },
-      ],
-    });
-
-    return res.status(200).json({
-      description: 'Admin Board',
-      user,
-    });
-  } catch (error) {
-    console.error(error);
-    return res
-      .json(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
-  }
-});
-
-const managementBoard = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findOne({
-      where: { id: req.userId },
-      attributes: ['name', 'username', 'email'],
-      include: [
-        {
-          model: Role,
-          attributes: ['id', 'name'],
-          through: {
-            attributes: ['userId', 'roleId'],
-          },
-        },
-      ],
-    });
-
-    return res.status(200).json({
-      description: 'Management Board',
-      user,
-    });
-  } catch (error) {
-    console.error(error);
-    return res
-      .json(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
-  }
-});
-
 module.exports = {
-  users,
+  read,
   create,
   update,
   destroy,
   detail,
   self,
-  userContent,
-  adminBoard,
-  managementBoard,
 };

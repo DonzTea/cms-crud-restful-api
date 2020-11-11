@@ -1,21 +1,21 @@
 const express = require('express');
 
-const authJwt = require('../middlewares/verifyJwtToken.js');
-const userController = require('../controllers/userController.js');
+const authMiddleware = require('../middlewares/auth.js');
+const pageController = require('../controllers/page.js');
 
 const router = express.Router();
 
 router
-  .get('/user', [authJwt.verifyToken], userController.userContent)
+  .get('/user', [authMiddleware.verifyToken], pageController.user)
   .get(
     '/pm',
-    [authJwt.verifyToken, authJwt.isPmOrAdmin],
-    userController.managementBoard,
+    [authMiddleware.verifyToken, authMiddleware.isPmOrAdmin],
+    pageController.pm,
   )
   .get(
     '/admin',
-    [authJwt.verifyToken, authJwt.isAdmin],
-    userController.adminBoard,
+    [authMiddleware.verifyToken, authMiddleware.isAdmin],
+    pageController.admin,
   );
 
 module.exports = router;

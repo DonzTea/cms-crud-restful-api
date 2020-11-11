@@ -2,17 +2,16 @@ const express = require('express');
 
 const userMiddleware = require('../middlewares/user.js');
 const authMiddleware = require('../middlewares/auth.js');
-const authJwt = require('../middlewares/verifyJwtToken.js');
-const userController = require('../controllers/userController.js');
+const userController = require('../controllers/user.js');
 
 const router = express.Router();
 
 router
-  .get('/', [authJwt.verifyToken], userController.users)
+  .get('/', userController.read)
   .post(
     '/',
     [
-      authJwt.verifyToken,
+      authMiddleware.verifyToken,
       userMiddleware.isAdmin,
       userMiddleware.createUserBodyValidation,
       userMiddleware.checkDuplicateUsernameOrEmail,
@@ -23,10 +22,10 @@ router
   .put(
     '/:id',
     [
-      authJwt.verifyToken,
+      authMiddleware.verifyToken,
       userMiddleware.checkParamIdExistence,
       userMiddleware.updateUserBodyValidation,
-      authMiddleware.isAuthorized,
+      userMiddleware.isAuthorized,
       userMiddleware.checkDuplicateUsernameOrEmail,
       userMiddleware.isRolesValid,
     ],
@@ -35,17 +34,13 @@ router
   .delete(
     '/:id',
     [
-      authJwt.verifyToken,
+      authMiddleware.verifyToken,
       userMiddleware.checkParamIdExistence,
-      authMiddleware.isAuthorized,
+      userMiddleware.isAuthorized,
     ],
     userController.destroy,
   )
-  .get('/self', [authJwt.verifyToken], userController.self)
-  .get(
-    '/:id',
-    [authJwt.verifyToken, userMiddleware.checkParamIdExistence],
-    userController.detail,
-  );
+  .get('/self', [authMiddleware.verifyToken], userController.self)
+  .get('/:id', [userMiddleware.checkParamIdExistence], userController.detail);
 
 module.exports = router;

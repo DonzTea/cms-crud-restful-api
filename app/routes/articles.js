@@ -1,35 +1,33 @@
 const express = require('express');
 
-const authJwt = require('../middlewares/verifyJwtToken.js');
-const articleController = require('../controllers/articleController.js');
+const articleController = require('../controllers/article.js');
 const authMiddleware = require('../middlewares/auth.js');
 const articleMiddleware = require('../middlewares/article.js');
-const userMiddleware = require('../middlewares/user.js');
 
 const router = express.Router();
 
 router
-  .get('/', [authJwt.verifyToken], articleController.articles)
+  .get('/', articleController.read)
   .post(
     '/',
-    [authJwt.verifyToken, articleMiddleware.createArticleBodyValidation],
+    [authMiddleware.verifyToken, articleMiddleware.createArticleBodyValidation],
     articleController.create,
   )
   .put(
     '/:id',
     [
-      authJwt.verifyToken,
-      authMiddleware.isAuthorized,
+      authMiddleware.verifyToken,
+      articleMiddleware.isAuthorized,
       articleMiddleware.updateArticleBodyValidation,
     ],
     articleController.update,
   )
   .delete(
     '/:id',
-    [authJwt.verifyToken, authMiddleware.isAuthorized],
+    [authMiddleware.verifyToken, articleMiddleware.isAuthorized],
     articleController.destroy,
   )
-  .get('/mine', [authJwt.verifyToken], articleController.mine)
-  .get('/:id', [authJwt.verifyToken], articleController.detail);
+  .get('/mine', [authMiddleware.verifyToken], articleController.mine)
+  .get('/:id', articleController.detail);
 
 module.exports = router;
