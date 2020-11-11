@@ -155,6 +155,17 @@ const destroy = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (id === 1) {
+      return res
+        .status(400)
+        .json({
+          error: {
+            code: 400,
+            message: 'You are not allowed to delete superadmin',
+          },
+        });
+    }
+
     await User.destroy({
       where: {
         id,
