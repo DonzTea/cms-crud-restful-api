@@ -8,37 +8,30 @@ const config = require('../config/config.js');
 const User = db.user;
 const Role = db.role;
 
-const { Op } = db.Sequelize;
-
 const signup = asyncHandler(async (req, res) => {
   // save user to database
   console.log('Processing func -> signup');
 
   try {
     const password = await bcrypt.hash(req.body.password, 8);
-    const user = await User.create({
-      name: req.body.name,
-      username: req.body.username,
-      email: req.body.email,
-      password,
-    });
-
-    if (req.body.roles && req.body.roles.length > 0) {
-      const roles = await Role.findAll({
+    const [createdUser, userRole] = await Promise.all([
+      User.create({
+        name: req.body.name,
+        username: req.body.username,
+        email: req.body.email,
+        password,
+      }),
+      Role.findOne({
         where: {
-          name: {
-            [Op.or]: req.body.roles,
-          },
+          name: 'USER',
         },
-      });
+      }),
+    ]);
 
-      await user.setRoles(roles);
-    } else {
-      await user.setRoles([1]);
-    }
+    await createdUser.setRoles([userRole.id]);
 
     return res.status(201).send({
-      status: 'User registered successfully!',
+      data: 'User registered successfully!',
     });
   } catch (error) {
     console.error(error);

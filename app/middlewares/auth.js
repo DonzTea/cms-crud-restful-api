@@ -86,23 +86,7 @@ const signinBodyValidation = validate([
     .withMessage('is expected to be at least 8 characters long'),
 ]);
 
-const isAuthorizedForUpdate = (req, res, next) => {
-  const userIdPayload = req.userId;
-  const { id } = req.params;
-
-  if (
-    userIdPayload === id ||
-    (req.body.roles &&
-      req.body.roles.length > 0 &&
-      req.body.roles.includes('ADMIN'))
-  ) {
-    next();
-  }
-
-  res.sendStatus(403);
-};
-
-const isAuthorizedForDelete = asyncHandler(async (req, res, next) => {
+const isAuthorized = asyncHandler(async (req, res, next) => {
   const userIdPayload = req.userId;
   const { id } = req.params;
 
@@ -128,6 +112,5 @@ const isAuthorizedForDelete = asyncHandler(async (req, res, next) => {
 module.exports = {
   signupBodyValidation,
   signinBodyValidation,
-  isAuthorizedForUpdate,
-  isAuthorizedForDelete,
+  isAuthorized,
 };

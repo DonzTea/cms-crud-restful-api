@@ -13,6 +13,7 @@ router
     '/',
     [
       authJwt.verifyToken,
+      userMiddleware.isAdmin,
       userMiddleware.createUserBodyValidation,
       userMiddleware.checkDuplicateUsernameOrEmail,
       userMiddleware.isRolesValid,
@@ -25,7 +26,7 @@ router
       authJwt.verifyToken,
       userMiddleware.checkParamIdExistence,
       userMiddleware.updateUserBodyValidation,
-      authMiddleware.isAuthorizedForUpdate,
+      authMiddleware.isAuthorized,
       userMiddleware.checkDuplicateUsernameOrEmail,
       userMiddleware.isRolesValid,
     ],
@@ -36,7 +37,7 @@ router
     [
       authJwt.verifyToken,
       userMiddleware.checkParamIdExistence,
-      authMiddleware.isAuthorizedForDelete,
+      authMiddleware.isAuthorized,
     ],
     userController.destroy,
   )
@@ -45,11 +46,6 @@ router
     '/:id',
     [authJwt.verifyToken, userMiddleware.checkParamIdExistence],
     userController.detail,
-  )
-  .post(
-    '/find-or-create',
-    [authJwt.verifyToken, userMiddleware.isAdmin],
-    userController.findOrCreate,
   );
 
 module.exports = router;

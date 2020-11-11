@@ -11,7 +11,7 @@ const Role = db.role;
 const users = asyncHandler(async (req, res) => {
   try {
     const user = await User.findAll({
-      attributes: ['name', 'username', 'email'],
+      attributes: ['id', 'name', 'username', 'email'],
       include: [
         {
           model: Role,
@@ -44,15 +44,26 @@ const create = asyncHandler(async (req, res) => {
       email: req.body.email,
       password,
     });
-    const roles = await Role.findAll({
-      where: {
-        name: {
-          [Op.or]: req.body.roles,
-        },
-      },
-    });
 
-    await createdUser.setRoles(roles);
+    if (req.body.roles && req.body.roles.length > 0) {
+      const roles = await Role.findAll({
+        where: {
+          name: {
+            [Op.or]: req.body.roles,
+          },
+        },
+      });
+
+      await createdUser.setRoles(roles);
+    } else {
+      const userRole = await Role.findOne({
+        where: {
+          name: 'USER',
+        },
+      });
+
+      await createdUser.setRoles([userRole.id]);
+    }
 
     return res.status(201).json({
       status: 201,
@@ -68,36 +79,64 @@ const create = asyncHandler(async (req, res) => {
 
 const update = asyncHandler(async (req, res) => {
   try {
-    const updatedUserCandidate = req.body;
-    if (updatedUserCandidate.password) {
-      updatedUserCandidate.password = await bcrypt.hash(
-        updatedUserCandidate.password,
-        8,
-      );
-    }
+    const [currentUser, targetUser] = await Promise.all([
+      User.findOne({
+        where: {
+          id: req.userId,
+        },
+      }),
+      User.findOne({
+        where: {
+          id: req.params.id,
+        },
+      }),
+    ]);
 
-    await User.update(updatedUserCandidate, {
-      where: {
-        id: req.params.id,
-      },
-    });
+    const currentUserRoles = await currentUser
+      .getRoles()
+      .then((roles) => roles.map((role) => role.name));
 
-    if (updatedUserCandidate.roles) {
-      const [user, roles] = await Promise.all([
-        User.findOne({
-          where: {
-            id: req.params.id,
-          },
-        }),
-        Role.findAll({
-          where: {
-            name: {
-              [Op.or]: req.body.roles,
+    if (
+      currentUserRoles &&
+      currentUserRoles.length > 0 &&
+      currentUserRoles.includes('ADMIN')
+    ) {
+      if (req.body.password) {
+        req.body.password = await bcrypt.hash(req.body.password, 8);
+      }
+
+      if (req.body.roles && req.body.roles.length > 0) {
+        const [targetUserRoles] = await Promise.all([
+          Role.findAll({
+            where: {
+              name: {
+                [Op.or]: req.body.roles,
+              },
             },
+          }),
+          User.update(req.body, {
+            where: {
+              id: req.params.id,
+            },
+          }),
+        ]);
+        await targetUser.setRoles(targetUserRoles);
+      } else {
+        const targetUserRole = await Role.findOne({
+          where: {
+            name: 'USER',
           },
-        }),
-      ]);
-      await user.setRoles(roles);
+        });
+        await targetUser.setRoles([targetUserRole.id]);
+      }
+    } else {
+      return res.status(403).json({
+        error: {
+          code: 403,
+          message:
+            "You're not able to update role, only admin and owner are authorized",
+        },
+      });
     }
 
     return res.status(200).json({
@@ -145,9 +184,14 @@ const detail = asyncHandler(async (req, res) => {
         .json({ error: { code: 400, message: 'Not Found' } });
     }
 
-    const roles = await user
-      .getRoles()
-      .then((roles) => roles.map((role) => ({ id: role.id, name: role.name })));
+    const [roles, articles] = await Promise.all([
+      user
+        .getRoles()
+        .then((roles) =>
+          roles.map((role) => ({ id: role.id, name: role.name })),
+        ),
+      user.getArticles(),
+    ]);
 
     return res.status(200).json({
       data: {
@@ -155,9 +199,10 @@ const detail = asyncHandler(async (req, res) => {
         name: user.name,
         username: user.username,
         email: user.email,
-        roles,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        roles,
+        articles,
       },
     });
   } catch (error) {
@@ -179,6 +224,15 @@ const self = asyncHandler(async (req, res) => {
         .json({ error: { code: 400, message: 'Not Found' } });
     }
 
+    const [roles, articles] = await Promise.all([
+      user
+        .getRoles()
+        .then((roles) =>
+          roles.map((role) => ({ id: role.id, name: role.name })),
+        ),
+      user.getArticles(),
+    ]);
+
     return res.status(200).json({
       data: {
         id: user.id,
@@ -187,41 +241,9 @@ const self = asyncHandler(async (req, res) => {
         email: user.email,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        roles,
+        articles,
       },
-    });
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
-  }
-});
-
-const findOrCreate = asyncHandler(async (req, res) => {
-  try {
-    const hashedPassword = await bcrypt.hash(
-      req.body.password || '12345678',
-      8,
-    );
-
-    if (req.body.password) req.body.password = hashedPassword;
-
-    const [user, created] = await User.findOrCreate({
-      where: req.body,
-      defaults: req.body,
-    });
-
-    if (created) {
-      await user.setRoles(req.body.roles || [1]);
-
-      return res.status(201).json({
-        status: 201,
-        message: 'User has been created',
-      });
-    }
-
-    return res.status(200).json({
-      data: user,
     });
   } catch (error) {
     console.error(error);
@@ -322,7 +344,6 @@ module.exports = {
   destroy,
   detail,
   self,
-  findOrCreate,
   userContent,
   adminBoard,
   managementBoard,

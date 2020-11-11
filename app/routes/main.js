@@ -15,4 +15,8 @@ module.exports = (app) => {
 
   app.use('/api/movies', moviesRouter);
   app.use('/api/actors', actorsRouter);
+
+  // api docs
+  const apiDocsRouter = require('../routes/apiDoc.js');
+  app.use('/api-docs', apiDocsRouter);
 };

@@ -15,8 +15,6 @@ const createUserBodyValidation = validate([
     .isString()
     .trim()
     .withMessage('is not a string')
-    .isAlphanumeric()
-    .withMessage('is containing illegal character')
     .isLength({ min: 4, max: 30 })
     .withMessage('is expected to be 4 to 30 characters long'),
   body('username')
@@ -64,8 +62,6 @@ const updateUserBodyValidation = validate([
     .isString()
     .trim()
     .withMessage('is not a string')
-    .isAlphanumeric()
-    .withMessage('is containing illegal character')
     .isLength({ min: 4, max: 30 })
     .withMessage('is expected to be 4 to 30 characters long'),
   body('username')
@@ -119,7 +115,6 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
           username: req.body.username,
         },
       });
-      console.log('userWithSameUsername: ' + userWithSameUsername);
 
       if (userWithSameUsername) {
         errors.push('Fail -> Username is already taken!');
@@ -134,7 +129,6 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
         },
       });
 
-      console.log('userWithSameEmail ' + userWithSameEmail);
       if (userWithSameEmail) {
         errors.push('Fail -> Email is already in use!');
       }
@@ -156,7 +150,7 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
 const isRolesValid = asyncHandler(async (req, res, next) => {
   if (req.body.roles && req.body.roles.length > 0) {
     for (let i = 0; i < req.body.roles.length; i++) {
-      if (!ROLES.includes(req.body.roles[i].toUpperCase())) {
+      if (!roles.includes(req.body.roles[i].toUpperCase())) {
         return res
           .status(400)
           .send('Fail -> Does not exist Role = ' + req.body.roles[i]);
@@ -167,29 +161,22 @@ const isRolesValid = asyncHandler(async (req, res, next) => {
 });
 
 const isAdmin = asyncHandler(async (req, res, next) => {
-  if (req.body.roles && req.body.roles.length > 0) {
-    for (let i = 0; i < req.body.roles.length; i++) {
-      if (req.body.roles[i].toUpperCase() === 'ADMIN') {
-        return next();
-      }
-    }
-  }
-
   try {
     if (req.userId) {
       const user = await User.findByPk(req.userId);
       const roles = await user
         .getRoles()
         .then((roles) => roles.map((role) => role.name));
+
       if (roles.includes('ADMIN')) {
         return next();
       }
     }
+
+    return res.status(403).json({ error: 'you are not admin, access denied' });
   } catch (error) {
     return res.sendStatus(500);
   }
-
-  return res.status(403).json({ error: 'you are not admin, access denied' });
 });
 
 module.exports = {

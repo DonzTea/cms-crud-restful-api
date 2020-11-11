@@ -19,22 +19,17 @@ router
     '/:id',
     [
       authJwt.verifyToken,
-      authMiddleware.isAuthorizedForUpdate,
+      authMiddleware.isAuthorized,
       articleMiddleware.updateArticleBodyValidation,
     ],
     articleController.update,
   )
   .delete(
     '/:id',
-    [authJwt.verifyToken, authMiddleware.isAuthorizedForDelete],
+    [authJwt.verifyToken, authMiddleware.isAuthorized],
     articleController.destroy,
   )
   .get('/mine', [authJwt.verifyToken], articleController.mine)
-  .get('/:id', [authJwt.verifyToken], articleController.detail)
-  .post(
-    '/find-or-create',
-    [authJwt.verifyToken, userMiddleware.isAdmin],
-    articleController.findOrCreate,
-  );
+  .get('/:id', [authJwt.verifyToken], articleController.detail);
 
 module.exports = router;

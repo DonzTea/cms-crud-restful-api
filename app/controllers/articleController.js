@@ -8,7 +8,7 @@ const Article = db.article;
 const articles = asyncHandler(async (req, res) => {
   try {
     const article = await Article.findAll({
-      attributes: ['title', 'content'],
+      attributes: ['id', 'title', 'content'],
       include: [
         {
           model: User,
@@ -110,7 +110,16 @@ const detail = asyncHandler(async (req, res) => {
         .json({ error: { code: 400, message: 'Not Found' } });
     }
 
-    return res.status(200).json({ data: article });
+    return res.status(200).json({
+      data: {
+        id: article.id,
+        title: article.title,
+        content: article.content,
+        createdAt: article.createdAt,
+        updatedAt: article.updatedAt,
+        author: article.user,
+      },
+    });
   } catch (error) {
     console.error(error);
     return res
@@ -123,40 +132,16 @@ const mine = asyncHandler(async (req, res) => {
   try {
     const userIdPayload = req.userId;
     const user = await User.findByPk(userIdPayload);
-    const articles = await user.getArticles();
+    const articles = await user.getArticles().then((articles) =>
+      articles.map((article) => ({
+        id: article.id,
+        title: article.title,
+        content: article.content,
+        createdAt: article.createdAt,
+        updatedAt: article.updatedAt,
+      })),
+    );
     return res.status(200).json({ data: articles });
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(500)
-      .json({ error: { code: 500, message: 'Internal Server Error' } });
-  }
-});
-
-const findOrCreate = asyncHandler(async (req, res) => {
-  try {
-    const [article, created] = await Article.findOrCreate({
-      where: req.body,
-      defaults: req.body,
-      attributes: ['id', 'title', 'content', 'createdAt', 'updatedAt'],
-      include: [
-        {
-          model: User,
-          attributes: ['id', 'name'],
-        },
-      ],
-    });
-
-    if (created) {
-      return res.status(201).json({
-        status: 201,
-        message: 'Article has been created',
-      });
-    }
-
-    return res.status(200).json({
-      data: article,
-    });
   } catch (error) {
     console.error(error);
     return res
@@ -172,5 +157,4 @@ module.exports = {
   destroy,
   detail,
   mine,
-  findOrCreate,
 };

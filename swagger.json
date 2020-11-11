@@ -1,0 +1,555 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Restful API",
+    "contact": {
+      "name": "Doni Rahma Tiana",
+      "email": "donirahmatiana@gmail.com"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://mighty-eyrie-29994.herokuapp.com"
+    },
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "paths": {
+    "/api/auth/signup": {
+      "post": {
+        "tags": ["Public"],
+        "summary": "Signup",
+        "description": "Register user's account.",
+        "operationId": "Signup",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              },
+              "example": {
+                "name": "doni",
+                "username": "doni",
+                "email": "doni@gmail.com",
+                "password": "12345678",
+                "passwordConfirmation": "12345678"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/auth/signin": {
+      "post": {
+        "tags": ["Public"],
+        "summary": "Signin",
+        "description": "Login user's account into system.",
+        "operationId": "Signin",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SigninRequest"
+              },
+              "example": {
+                "username": "admin",
+                "password": "12345678"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/test/admin": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Admin page",
+        "description": "This page is authorized for admin.",
+        "operationId": "Adminpage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/test/pm": {
+      "get": {
+        "tags": ["PM"],
+        "summary": "PM page",
+        "description": "This page is authorized for Project Manager.",
+        "operationId": "PMpage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/test/user": {
+      "get": {
+        "tags": ["User"],
+        "summary": "User page",
+        "description": "This page is authorized for users.",
+        "operationId": "Userpage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/users": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Create user",
+        "description": "Create a new user.",
+        "operationId": "Createuser",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              },
+              "example": {
+                "name": "doniPM",
+                "username": "doniPM",
+                "email": "doniPM@gmail.com",
+                "password": "12345678",
+                "roles": ["PM"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "get": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Read users",
+        "description": "Get all users.",
+        "operationId": "Readusers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/users/{user_id}": {
+      "get": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Read user",
+        "description": "reading a user data with specifying id as request header.",
+        "operationId": "Readuser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "put": {
+        "tags": ["Admin", "Owner"],
+        "summary": "Update user",
+        "description": "update user data with specifying id as request header.",
+        "operationId": "Updateuser",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              },
+              "example": {
+                "name": "doni PM",
+                "username": "DoniPM",
+                "email": "doniiPM@gmail.com",
+                "password": "donipm$$"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "delete": {
+        "tags": ["Admin", "Owner"],
+        "summary": "Delete user",
+        "description": "delete a user with specifying id as request header.",
+        "operationId": "Deleteuser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/users/self": {
+      "get": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Read self",
+        "description": "Reading current user data.",
+        "operationId": "Readself",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/articles": {
+      "post": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Create article",
+        "description": "Create a new article.",
+        "operationId": "Createarticle",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleRequest"
+              },
+              "example": {
+                "title": "New Admin's Title",
+                "content": "article content"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "get": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Read articles",
+        "description": "Get all articles.",
+        "operationId": "Readarticles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/articles/mine": {
+      "get": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Read my article",
+        "description": "Get all articles of current user.",
+        "operationId": "Readmyarticle",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/articles/{article_id}": {
+      "get": {
+        "tags": ["Admin", "PM", "User"],
+        "summary": "Read article",
+        "description": "Get an article with specifying id as request header.",
+        "operationId": "Readarticle",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "put": {
+        "tags": ["Admin", "Owner"],
+        "summary": "Update article",
+        "description": "update an article with specifying id as request header if current user have authorization.",
+        "operationId": "Updatearticle",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleRequest"
+              },
+              "example": {
+                "title": "New Title Updated"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "delete": {
+        "tags": ["Admin", "Owner"],
+        "summary": "Delete article",
+        "description": "delete an article with specifying id as request header if user have authorization.",
+        "operationId": "Deletearticle",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SignupRequest": {
+        "title": "SignupRequest",
+        "required": [
+          "name",
+          "username",
+          "email",
+          "password",
+          "passwordConfirmation"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "passwordConfirmation": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "name": "doni",
+          "username": "doni",
+          "email": "doni@gmail.com",
+          "password": "12345678",
+          "passwordConfirmation": "12345678"
+        }
+      },
+      "SigninRequest": {
+        "title": "SigninRequest",
+        "required": ["username", "password"],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "username": "admin",
+          "password": "12345678"
+        }
+      },
+      "CreateUserRequest": {
+        "title": "CreateUserRequest",
+        "required": ["name", "username", "email", "password", "roles"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        },
+        "example": {
+          "name": "doniPM",
+          "username": "doniPM",
+          "email": "doniPM@gmail.com",
+          "password": "12345678",
+          "roles": ["PM"]
+        }
+      },
+      "UpdateUserRequest": {
+        "title": "UpdateUserRequest",
+        "required": ["name", "username", "email", "password"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "name": "doniPM Updated",
+          "username": "DoniPM",
+          "email": "doniiPM@gmail.com",
+          "password": "donipm$$"
+        }
+      },
+      "CreateArticleRequest": {
+        "title": "CreateArticleRequest",
+        "required": ["title", "content"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "title": "New Admin's Title",
+          "content": "article content"
+        }
+      },
+      "UpdateArticleRequest": {
+        "title": "UpdateArticleRequest",
+        "required": ["title"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "title": "New Title Updated"
+        }
+      }
+    },
+    "securitySchemes": {
+      "httpBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "httpBearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Public",
+      "description": "clients without account"
+    },
+    {
+      "name": "Admin",
+      "description": "clients with admin role"
+    },
+    {
+      "name": "PM",
+      "description": "clients with PM role"
+    },
+    {
+      "name": "User",
+      "description": "clients with user role"
+    },
+    {
+      "name": "Owner",
+      "description": "clients with authorization of some actions"
+    }
+  ]
+}
