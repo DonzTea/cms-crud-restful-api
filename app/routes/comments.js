@@ -3,6 +3,7 @@ const express = require('express');
 const commentController = require('../controllers/comment.js');
 const authMiddleware = require('../middlewares/auth.js');
 const commentMiddleware = require('../middlewares/comment.js');
+const globalMiddleware = require('../middlewares/global.js');
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router
       authMiddleware.verifyToken,
       commentMiddleware.checkParamArticleId,
       commentMiddleware.createCommentBodyValidation,
+      globalMiddleware.isRequestBodyAnObject,
     ],
     commentController.create,
   )
@@ -27,6 +29,7 @@ router
       authMiddleware.verifyToken,
       commentMiddleware.isAuthorized,
       commentMiddleware.checkParamCommentId,
+      globalMiddleware.isRequestBodyAnObject,
       commentMiddleware.updateCommentBodyValidation,
     ],
     commentController.update,

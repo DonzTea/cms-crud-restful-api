@@ -2,6 +2,7 @@ const express = require('express');
 
 const articleController = require('../controllers/article.js');
 const authMiddleware = require('../middlewares/auth.js');
+const globalMiddleware = require('../middlewares/global.js');
 const articleMiddleware = require('../middlewares/article.js');
 
 const router = express.Router();
@@ -10,7 +11,11 @@ router
   .get('/', articleController.read)
   .post(
     '/',
-    [authMiddleware.verifyToken, articleMiddleware.createArticleBodyValidation],
+    [
+      authMiddleware.verifyToken,
+      globalMiddleware.isRequestBodyAnObject,
+      articleMiddleware.createArticleBodyValidation,
+    ],
     articleController.create,
   )
   .put(
@@ -18,6 +23,7 @@ router
     [
       authMiddleware.verifyToken,
       articleMiddleware.isAuthorized,
+      globalMiddleware.isRequestBodyAnObject,
       articleMiddleware.checkParamIdExistence,
       articleMiddleware.updateArticleBodyValidation,
     ],

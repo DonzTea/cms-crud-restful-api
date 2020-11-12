@@ -3,6 +3,7 @@ const express = require('express');
 const userMiddleware = require('../middlewares/user.js');
 const authMiddleware = require('../middlewares/auth.js');
 const userController = require('../controllers/user.js');
+const globalMiddleware = require('../middlewares/global.js');
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router
     [
       authMiddleware.verifyToken,
       userMiddleware.isAdmin,
+      globalMiddleware.isRequestBodyAnObject,
       userMiddleware.createUserBodyValidation,
       userMiddleware.checkDuplicateUsernameOrEmail,
       userMiddleware.isRolesValid,
@@ -24,6 +26,7 @@ router
     [
       authMiddleware.verifyToken,
       userMiddleware.checkParamIdExistence,
+      globalMiddleware.isRequestBodyAnObject,
       userMiddleware.updateUserBodyValidation,
       userMiddleware.isAuthorized,
       userMiddleware.checkDuplicateUsernameOrEmail,
