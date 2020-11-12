@@ -46,11 +46,18 @@ const create = asyncHandler(async (req, res) => {
 
 const update = asyncHandler(async (req, res) => {
   try {
-    await Article.update(req.body, {
-      where: {
-        id: req.params.id,
+    const { title, content } = req.body;
+    await Article.update(
+      {
+        title,
+        content,
       },
-    });
+      {
+        where: {
+          id: req.params.id,
+        },
+      },
+    );
 
     return res.status(200).json({
       message: 'Article has been updated',

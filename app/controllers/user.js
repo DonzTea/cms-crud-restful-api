@@ -74,6 +74,8 @@ const create = asyncHandler(async (req, res) => {
 
 const update = asyncHandler(async (req, res) => {
   try {
+    const { name, username, email } = req.body;
+
     const [currentUser, targetUser] = await Promise.all([
       User.findOne({
         where: {
@@ -110,10 +112,6 @@ const update = asyncHandler(async (req, res) => {
         currentUserRoles.length > 0 &&
         currentUserRoles.includes('ADMIN'))
     ) {
-      if (req.body.password) {
-        req.body.password = await bcrypt.hash(req.body.password, 8);
-      }
-
       if (req.body.roles && req.body.roles.length > 0) {
         const [targetUserRoles] = await Promise.all([
           Role.findAll({
@@ -123,11 +121,18 @@ const update = asyncHandler(async (req, res) => {
               },
             },
           }),
-          User.update(req.body, {
-            where: {
-              id: req.params.id,
+          User.update(
+            {
+              name,
+              username,
+              email,
             },
-          }),
+            {
+              where: {
+                id: req.params.id,
+              },
+            },
+          ),
         ]);
         await targetUser.setRoles(targetUserRoles);
       } else {
@@ -137,11 +142,18 @@ const update = asyncHandler(async (req, res) => {
               name: 'USER',
             },
           }),
-          User.update(req.body, {
-            where: {
-              id: req.params.id,
+          User.update(
+            {
+              name,
+              username,
+              email,
             },
-          }),
+            {
+              where: {
+                id: req.params.id,
+              },
+            },
+          ),
         ]);
         await targetUser.setRoles([targetUserRole.id]);
       }

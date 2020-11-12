@@ -65,7 +65,7 @@
     },
     "/api/auth/signin": {
       "post": {
-        "tags": ["Public"],
+        "tags": ["Public", "Admin", "PM", "User"],
         "summary": "Signin",
         "description": "Login user's account into system.",
         "operationId": "Signin",
@@ -123,7 +123,7 @@
             "description": "no token provided"
           },
           "500": {
-            "description": "authentication failed"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -144,11 +144,14 @@
           "200": {
             "description": "authentication as PM success"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided"
           },
           "500": {
-            "description": "authentication failed"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -169,11 +172,14 @@
           "200": {
             "description": "authentication as user success"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided"
           },
           "500": {
-            "description": "authentication failed"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -215,11 +221,14 @@
           "400": {
             "description": "required request body is missing, does not meet standards, or duplicate account were found"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided or not an admin"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -306,8 +315,7 @@
               "example": {
                 "name": "doni PM",
                 "username": "DoniPM",
-                "email": "doniiPM@gmail.com",
-                "password": "donipm$$"
+                "email": "doniiPM@gmail.com"
               }
             }
           },
@@ -320,17 +328,20 @@
           "400": {
             "description": "no param id provided, required request body is missing, does not meet standards, duplicate account were found, or intended to delete superadmin"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided, not an admin, or not an owner"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false
       },
       "delete": {
-        "tags": ["Admin", "Owner"],
+        "tags": ["Admin"],
         "summary": "Delete user",
         "description": "delete a user with specifying id as request header.",
         "operationId": "DeleteUser",
@@ -358,11 +369,14 @@
           "400": {
             "description": "no param id provided or intended to delete superadmin"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
-            "description": "no token provided, not an admin, or not an owner"
+            "description": "no token provided or not an admin"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -429,11 +443,14 @@
           "400": {
             "description": "required request body is missing or does not meet standards"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -469,11 +486,14 @@
           "200": {
             "description": "read current login user article success"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -556,11 +576,14 @@
           "400": {
             "description": "no param id provided, required request body is missing, or does not meet standards"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided, not an admin, or not an owner"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -594,11 +617,14 @@
           "400": {
             "description": "no param id provided"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided, not an admin, or not an owner"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false
@@ -648,6 +674,9 @@
           "400": {
             "description": "no param articleId provided, required request body is missing, or does not meet standards"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided"
           },
@@ -655,7 +684,7 @@
             "description": "article not found"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false,
@@ -750,11 +779,14 @@
           "400": {
             "description": "no param commentId provided"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided, not an admin, or not an owner"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false,
@@ -794,11 +826,14 @@
           "400": {
             "description": "no param commentId provided"
           },
+          "401": {
+            "description": "authentication failed"
+          },
           "403": {
             "description": "no token provided or not an admin"
           },
           "500": {
-            "description": "authentication failed or server error"
+            "description": "server error"
           }
         },
         "deprecated": false,
@@ -910,16 +945,12 @@
           },
           "email": {
             "type": "string"
-          },
-          "password": {
-            "type": "string"
           }
         },
         "example": {
           "name": "Updated Doni PM",
           "username": "updatedDoniPM",
-          "email": "updatedDoniPM@gmail.com",
-          "password": "updateddonipm"
+          "email": "updatedDoniPM@gmail.com"
         }
       },
       "CreateArticleRequest": {

@@ -97,9 +97,9 @@ const verifyToken = asyncHandler(async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    return res.status(401).json({
       auth: false,
-      message: 'Fail to authentication. Error -> ' + error,
+      message: error,
     });
   }
 });

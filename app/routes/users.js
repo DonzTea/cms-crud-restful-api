@@ -39,7 +39,7 @@ router
     [
       authMiddleware.verifyToken,
       userMiddleware.checkParamIdExistence,
-      userMiddleware.isAuthorized,
+      userMiddleware.isAdmin,
     ],
     userController.destroy,
   )
