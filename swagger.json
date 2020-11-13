@@ -15,7 +15,7 @@
   },
   "servers": [
     {
-      "url": "https://mighty-eyrie-29994.herokuapp.com",
+      "url": "https://intense-brushlands-12885.herokuapp.com/",
       "description": "Production server"
     },
     {
