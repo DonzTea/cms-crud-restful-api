@@ -1,118 +1,113 @@
 const { body, param } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
-const roles = require('../config/config.js').ROLES;
 const { validate } = require('../utils/middleware.js');
-const arrayUtil = require('../utils/array.js');
 
 const User = require('../config/db.js').user;
 
-const createUserBodyValidation = validate([
-  body('name')
-    .exists({ checkFalsy: true, checkNull: true })
-    .withMessage('is not exists')
-    .bail()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 4, max: 30 })
-    .withMessage('is expected to be 4 to 30 characters long'),
-  body('username')
-    .exists({ checkFalsy: true, checkNull: true })
-    .withMessage('is not exists')
-    .bail()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isAlphanumeric()
-    .withMessage('is containing illegal character')
-    .isLength({ min: 4, max: 30 })
-    .withMessage('is expected to be 4 to 30 characters long'),
-  body('email')
-    .exists({ checkFalsy: true, checkNull: true })
-    .withMessage('is not exists')
-    .bail()
-    .isEmail()
-    .withMessage('is not an email')
-    .normalizeEmail(),
-  body('password')
-    .exists({ checkFalsy: true, checkNull: true })
-    .withMessage('is not exists')
-    .bail()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 8 })
-    .withMessage('is expected to be at least 8 characters long'),
-  body('roles').optional().isArray().withMessage('is not an array'),
-  body('roles.*')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isIn(roles)
-    .withMessage(
-      `is expected to be ${arrayUtil.formatToReadableString(roles, 'or')}`,
-    ),
-]);
-
-const updateUserBodyValidation = validate([
-  body('name')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 4, max: 30 })
-    .withMessage('is expected to be 4 to 30 characters long'),
-  body('username')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isAlphanumeric()
-    .withMessage('is containing illegal character')
-    .isLength({ min: 4, max: 30 })
-    .withMessage('is expected to be 4 to 30 characters long'),
-  body('email')
-    .optional()
-    .isEmail()
-    .withMessage('is not an email')
-    .normalizeEmail(),
-  body('password')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isLength({ min: 8 })
-    .withMessage('is expected to be at least 8 characters long'),
-  body('roles').optional().isArray().withMessage('is not an array'),
-  body('roles.*')
-    .optional()
-    .isString()
-    .trim()
-    .withMessage('is not a string')
-    .isIn(roles)
-    .withMessage(
-      `is expected to be ${arrayUtil.formatToReadableString(roles, 'or')}`,
-    ),
-]);
-
-const checkParamIdExistence = validate([
-  param('id')
-    .exists({ checkFalsy: true, checkNull: true })
-    .withMessage('is not exists')
-    .bail(),
-]);
-
-const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
+const isUser = asyncHandler(async (req, res, next) => {
   try {
-    const errors = [];
+    if (req.userId) {
+      const user = await User.findByPk(req.userId);
+      const roles = await user
+        .getRoles()
+        .then((roles) => roles.map((role) => role.name));
 
-    if (req.body.username) {
+      if (roles.includes('USER')) {
+        return next();
+      }
+    }
+
+    return res.status(403).json({
+      message: 'You are not user, access denied',
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+const isTargetSuperadmin = (req, res, next) => {
+  if (req.params.user_id === 1) {
+    return res
+      .status(400)
+      .json({ message: 'You are not allowed to modify superadmin' });
+  }
+
+  next();
+};
+
+const bodyRequired = validate([
+  body('name')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail()
+    .isString()
+    .trim()
+    .withMessage('is not a string'),
+  body('username')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail()
+    .isString()
+    .trim()
+    .withMessage('is not a string')
+    .isAlphanumeric()
+    .withMessage('is containing illegal character')
+    .isLength({ min: 4, max: 30 })
+    .withMessage('is expected to be 4 to 30 characters long'),
+  body('email')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail()
+    .isEmail()
+    .withMessage('is not an email')
+    .normalizeEmail(),
+  body('password')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail()
+    .isString()
+    .trim()
+    .withMessage('is not a string')
+    .isLength({ min: 8 })
+    .withMessage('is expected to be at least 8 characters long'),
+]);
+
+const bodyOptional = validate([
+  body('name')
+    .optional()
+    .isString()
+    .trim()
+    .withMessage('is not a string')
+    .isLength({ min: 4, max: 30 })
+    .withMessage('is expected to be 4 to 30 characters long'),
+  body('username')
+    .optional()
+    .isString()
+    .trim()
+    .withMessage('is not a string')
+    .isAlphanumeric()
+    .withMessage('is containing illegal character')
+    .isLength({ min: 4, max: 30 })
+    .withMessage('is expected to be 4 to 30 characters long'),
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('is not an email')
+    .normalizeEmail(),
+]);
+
+const checkDuplicateAccount = asyncHandler(async (req, res, next) => {
+  try {
+    const { username, email } = req.body;
+
+    const errors = [];
+    if (username) {
       // * check if username is already taken
       const userWithSameUsername = await User.findOne({
         where: {
-          username: req.body.username,
+          username: username,
         },
       });
 
@@ -121,11 +116,11 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
       }
     }
 
-    if (req.body.email) {
+    if (email) {
       // * check if email is already in use
       const userWithSameEmail = await User.findOne({
         where: {
-          email: req.body.email,
+          email: email,
         },
       });
 
@@ -136,7 +131,7 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
 
     if (errors.length > 0) {
       return res.status(400).json({
-        message: 'Bad Input, duplicate user data',
+        message: 'Duplicate account found',
         errors,
       });
     }
@@ -148,60 +143,29 @@ const checkDuplicateUsernameOrEmail = asyncHandler(async (req, res, next) => {
   }
 });
 
-const isRolesValid = asyncHandler(async (req, res, next) => {
-  if (req.body.roles && req.body.roles.length > 0) {
-    for (let i = 0; i < req.body.roles.length; i++) {
-      if (!roles.includes(req.body.roles[i].toUpperCase())) {
-        return res.status(400).json({
-          message: 'Does not exist Role = ' + req.body.roles[i],
+const isParamUserIdExists = validate([
+  param('user_id')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail(),
+]);
+
+const isCurentUserAnOwner = asyncHandler(async (req, res, next) => {
+  try {
+    if (req.userId) {
+      const userId = req.params.user_id;
+      const targetAccount = await User.findByPk(userId);
+      if (targetAccount.id === req.userId) {
+        return next();
+      } else {
+        return res.status(403).json({
+          message: 'You are not account owner, access denied',
         });
       }
     }
-  }
-  next();
-});
 
-const isAdmin = asyncHandler(async (req, res, next) => {
-  try {
-    if (req.userId) {
-      const user = await User.findByPk(req.userId);
-      const roles = await user
-        .getRoles()
-        .then((roles) => roles.map((role) => role.name));
-
-      if (roles.includes('ADMIN')) {
-        return next();
-      }
-    }
-
-    return res.status(403).json({
-      message: 'you are not admin, access denied',
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-const isAuthorized = asyncHandler(async (req, res, next) => {
-  try {
-    const userIdPayload = req.userId;
-    const { id } = req.params;
-
-    if (userIdPayload === id) {
-      return next();
-    }
-
-    const user = await User.findOne({ where: { id: userIdPayload } });
-    const roles = await user
-      .getRoles()
-      .then((roles) => roles.map((role) => role.name));
-    if (roles && roles.length > 0 && roles.includes('ADMIN')) {
-      return next();
-    }
-
-    return res.status(403).json({
-      message: 'You are not authorized, access denied',
+    return res.status(401).json({
+      message: 'Authorization failed',
     });
   } catch (error) {
     console.error(error);
@@ -210,11 +174,11 @@ const isAuthorized = asyncHandler(async (req, res, next) => {
 });
 
 module.exports = {
-  createUserBodyValidation,
-  updateUserBodyValidation,
-  checkParamIdExistence,
-  checkDuplicateUsernameOrEmail,
-  isRolesValid,
-  isAdmin,
-  isAuthorized,
+  isUser,
+  isTargetSuperadmin,
+  bodyRequired,
+  bodyOptional,
+  checkDuplicateAccount,
+  isParamUserIdExists,
+  isCurentUserAnOwner,
 };

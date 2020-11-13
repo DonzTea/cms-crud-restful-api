@@ -8,41 +8,50 @@ const articleMiddleware = require('../middlewares/article.js');
 const router = express.Router();
 
 router
-  .get('/', articleController.read)
+  .get('/', articleController.readArticles)
+  .get(
+    '/:article_id',
+    [articleMiddleware.isParamArticleIdExists],
+    articleController.readArticle,
+  )
   .post(
     '/',
     [
       authMiddleware.verifyToken,
+      authMiddleware.isUser,
       globalMiddleware.isRequestBodyAnObject,
-      articleMiddleware.createArticleBodyValidation,
+      articleMiddleware.bodyRequired,
     ],
-    articleController.create,
+    articleController.createArticle,
   )
   .put(
-    '/:id',
+    '/:article_id',
     [
       authMiddleware.verifyToken,
-      articleMiddleware.isAuthorized,
+      authMiddleware.isArticleOwner,
       globalMiddleware.isRequestBodyAnObject,
-      articleMiddleware.checkParamIdExistence,
-      articleMiddleware.updateArticleBodyValidation,
+      articleMiddleware.isParamArticleIdExists,
+      articleMiddleware.bodyOptional,
     ],
-    articleController.update,
+    articleController.updateArticle,
   )
   .delete(
-    '/:id',
+    '/:article_id',
     [
       authMiddleware.verifyToken,
-      articleMiddleware.isAuthorized,
-      articleMiddleware.checkParamIdExistence,
+      authMiddleware.isArticleOwner,
+      articleMiddleware.isParamArticleIdExists,
     ],
-    articleController.destroy,
+    articleController.deleteArticle,
   )
-  .get('/mine', [authMiddleware.verifyToken], articleController.mine)
   .get(
-    '/:id',
-    [articleMiddleware.checkParamIdExistence],
-    articleController.detail,
+    '/:article_id/comments',
+    [
+      authMiddleware.verifyToken,
+      authMiddleware.isUser,
+      articleMiddleware.isParamArticleIdExists,
+    ],
+    articleController.readComments,
   );
 
 module.exports = router;

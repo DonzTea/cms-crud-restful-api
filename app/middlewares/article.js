@@ -7,7 +7,7 @@ const db = require('../config/db.js');
 const User = db.user;
 const Article = db.article;
 
-const createArticleBodyValidation = validate([
+const bodyRequired = validate([
   body('title')
     .exists({ checkFalsy: true, checkNull: true })
     .withMessage('is not exists')
@@ -28,7 +28,7 @@ const createArticleBodyValidation = validate([
     .withMessage('is expected to be at least 8 characters long'),
 ]);
 
-const updateArticleBodyValidation = validate([
+const bodyOptional = validate([
   body('title')
     .optional()
     .isString()
@@ -74,16 +74,16 @@ const isAuthorized = asyncHandler(async (req, res, next) => {
   }
 });
 
-const checkParamIdExistence = validate([
-  param('id')
+const isParamArticleIdExists = validate([
+  param('article_id')
     .exists({ checkFalsy: true, checkNull: true })
     .withMessage('is not exists')
     .bail(),
 ]);
 
 module.exports = {
-  createArticleBodyValidation,
-  updateArticleBodyValidation,
+  bodyRequired,
+  bodyOptional,
   isAuthorized,
-  checkParamIdExistence,
+  isParamArticleIdExists,
 };

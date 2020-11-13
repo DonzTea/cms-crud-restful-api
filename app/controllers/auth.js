@@ -47,7 +47,7 @@ const signin = asyncHandler(async (req, res) => {
       return res.status(404).json({
         auth: false,
         accessToken: null,
-        reason: 'User Not Found!',
+        reason: 'User not found',
       });
     }
 
@@ -59,7 +59,7 @@ const signin = asyncHandler(async (req, res) => {
       return res.status(401).json({
         auth: false,
         accessToken: null,
-        reason: 'Invalid Password!',
+        reason: 'Invalid password',
       });
     }
 
@@ -70,6 +70,7 @@ const signin = asyncHandler(async (req, res) => {
     const token = jwt.sign({ id: user.id }, config.secret, {
       expiresIn: '1 days',
     });
+
     return res.status(200).json({
       auth: true,
       type: 'Bearer',

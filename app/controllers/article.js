@@ -5,7 +5,7 @@ const db = require('../config/db.js');
 const User = db.user;
 const Article = db.article;
 
-const read = asyncHandler(async (req, res) => {
+const readArticles = asyncHandler(async (req, res) => {
   try {
     const article = await Article.findAll({
       attributes: ['id', 'title', 'content'],
@@ -27,7 +27,7 @@ const read = asyncHandler(async (req, res) => {
   }
 });
 
-const create = asyncHandler(async (req, res) => {
+const createArticle = asyncHandler(async (req, res) => {
   try {
     await Article.create({
       title: req.body.title,
@@ -44,20 +44,13 @@ const create = asyncHandler(async (req, res) => {
   }
 });
 
-const update = asyncHandler(async (req, res) => {
+const updateArticle = asyncHandler(async (req, res) => {
   try {
-    const { title, content } = req.body;
-    await Article.update(
-      {
-        title,
-        content,
+    await Article.update(req.body, {
+      where: {
+        id: req.params.id,
       },
-      {
-        where: {
-          id: req.params.id,
-        },
-      },
-    );
+    });
 
     return res.status(200).json({
       message: 'Article has been updated',
@@ -68,7 +61,7 @@ const update = asyncHandler(async (req, res) => {
   }
 });
 
-const destroy = asyncHandler(async (req, res) => {
+const deleteArticle = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -87,10 +80,10 @@ const destroy = asyncHandler(async (req, res) => {
   }
 });
 
-const detail = asyncHandler(async (req, res) => {
+const readArticle = asyncHandler(async (req, res) => {
   try {
-    const { id } = req.params;
-    const article = await Article.findByPk(id, {
+    const articleId = req.params.article_id;
+    const article = await Article.findByPk(articleId, {
       attributes: ['id', 'title', 'content', 'createdAt', 'updatedAt'],
       include: [
         {
@@ -100,8 +93,10 @@ const detail = asyncHandler(async (req, res) => {
       ],
     });
 
-    if (article === null) {
-      return res.status(404).json({ message: 'Not Found' });
+    if (!article) {
+      return res
+        .status(404)
+        .json({ message: `Article with id equals to ${articleId} not found` });
     }
 
     return res.status(200).json({
@@ -118,20 +113,29 @@ const detail = asyncHandler(async (req, res) => {
   }
 });
 
-const mine = asyncHandler(async (req, res) => {
+const readComments = asyncHandler(async (req, res) => {
   try {
-    const userIdPayload = req.userId;
-    const user = await User.findByPk(userIdPayload);
-    const articles = await user.getArticles().then((articles) =>
-      articles.map((article) => ({
-        id: article.id,
-        title: article.title,
-        content: article.content,
-        createdAt: article.createdAt,
-        updatedAt: article.updatedAt,
-      })),
-    );
-    return res.status(200).json({ articles });
+    const articleId = req.params.article_id;
+    const article = await Article.findByPk(articleId, {
+      attributes: ['id', 'title', 'content', 'createdAt', 'updatedAt'],
+    });
+
+    if (!article) {
+      return res
+        .status(404)
+        .json({ message: `Article with id equals to ${articleId} not found` });
+    }
+
+    const comments = await article.getComments();
+
+    return res.status(200).json({
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      createdAt: article.createdAt,
+      updatedAt: article.updatedAt,
+      comments,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
@@ -139,10 +143,10 @@ const mine = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  read,
-  create,
-  update,
-  destroy,
-  detail,
-  mine,
+  readArticles,
+  readArticle,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+  readComments,
 };

@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "CRUD Restful API using Sequelize and Swagger",
+    "title": "CMS CRUD Restful API using Sequelize and Swagger",
     "description": "CMS CRUD Restful API with authentication and authorization. Using PostgreSQL as DBMS and Sequelize as its ORM. Documentation is served using Swagger.",
     "contact": {
       "name": "Doni Rahma Tiana",
@@ -26,11 +26,11 @@
   "paths": {
     "/api/auth/signup": {
       "post": {
-        "tags": ["Public"],
+        "tags": ["AUTH"],
         "summary": "Signup",
-        "description": "Register user's account.",
+        "description": "Register account",
         "operationId": "Signup",
-        "consumes": ["application/json"],
+        "parameters": [],
         "requestBody": {
           "description": "",
           "content": {
@@ -51,13 +51,13 @@
         },
         "responses": {
           "201": {
-            "description": "account successfully registered"
+            "description": "Account successfully registered"
           },
           "400": {
-            "description": "required request body is missing, does not meet standards, or duplicate account were found"
+            "description": "Bad input or duplicate account found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
         "deprecated": false
@@ -65,10 +65,11 @@
     },
     "/api/auth/signin": {
       "post": {
-        "tags": ["Public", "Admin", "PM", "User"],
+        "tags": ["AUTH"],
         "summary": "Signin",
-        "description": "Login user's account into system.",
+        "description": "Login account",
         "operationId": "Signin",
+        "parameters": [],
         "requestBody": {
           "description": "",
           "content": {
@@ -86,336 +87,47 @@
         },
         "responses": {
           "200": {
-            "description": "login success"
+            "description": "Login success"
           },
           "400": {
-            "description": "required request body is missing or does not meet standards"
+            "description": "Bad input"
           },
           "401": {
-            "description": "invalid password"
+            "description": "Wrong password"
           },
           "404": {
-            "description": "user not found"
+            "description": "User not found"
           },
           "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/test/admin": {
-      "get": {
-        "tags": ["Admin"],
-        "summary": "Admin page",
-        "description": "This page is authorized for admin.",
-        "operationId": "AdminPage",
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "authentication as admin success"
-          },
-          "403": {
-            "description": "no token provided"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/test/pm": {
-      "get": {
-        "tags": ["PM"],
-        "summary": "PM page",
-        "description": "This page is authorized for Project Manager.",
-        "operationId": "PmPage",
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "authentication as PM success"
-          },
-          "401": {
-            "description": "authentication failed"
-          },
-          "403": {
-            "description": "no token provided"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/test/user": {
-      "get": {
-        "tags": ["User"],
-        "summary": "User page",
-        "description": "This page is authorized for users.",
-        "operationId": "UserPage",
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "authentication as user success"
-          },
-          "401": {
-            "description": "authentication failed"
-          },
-          "403": {
-            "description": "no token provided"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/users": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "Create user",
-        "description": "Create a new user.",
-        "operationId": "CreateUser",
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "requestBody": {
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserRequest"
-              },
-              "example": {
-                "name": "doniPM",
-                "username": "doniPM",
-                "email": "doniPM@gmail.com",
-                "password": "12345678",
-                "roles": ["PM"]
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "user created"
-          },
-          "400": {
-            "description": "required request body is missing, does not meet standards, or duplicate account were found"
-          },
-          "401": {
-            "description": "authentication failed"
-          },
-          "403": {
-            "description": "no token provided or not an admin"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      },
-      "get": {
-        "tags": ["Public", "Admin", "PM", "User"],
-        "summary": "Read users",
-        "description": "Get all users.",
-        "operationId": "ReadUsers",
-        "responses": {
-          "200": {
-            "description": "read users success"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/users/{user_id}": {
-      "get": {
-        "tags": ["Public", "Admin", "PM", "User"],
-        "summary": "Read user",
-        "description": "reading a user data with specifying id as request header.",
-        "operationId": "ReadUser",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "description": "id of a user",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "read user detail success"
-          },
-          "400": {
-            "description": "no param id provided"
-          },
-          "404": {
-            "description": "user not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      },
-      "put": {
-        "tags": ["Admin", "Owner"],
-        "summary": "Update user",
-        "description": "update user data with specifying id as request header.",
-        "operationId": "UpdateUser",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "description": "id of a user",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          }
-        ],
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "requestBody": {
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserRequest"
-              },
-              "example": {
-                "name": "doni PM",
-                "username": "DoniPM",
-                "email": "doniiPM@gmail.com"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "user updated"
-          },
-          "400": {
-            "description": "no param id provided, required request body is missing, does not meet standards, duplicate account were found, or intended to delete superadmin"
-          },
-          "401": {
-            "description": "authentication failed"
-          },
-          "403": {
-            "description": "no token provided, not an admin, or not an owner"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      },
-      "delete": {
-        "tags": ["Admin"],
-        "summary": "Delete user",
-        "description": "delete a user with specifying id as request header.",
-        "operationId": "DeleteUser",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "required": true,
-            "description": "id of a user",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          }
-        ],
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "user deleted"
-          },
-          "400": {
-            "description": "no param id provided or intended to delete superadmin"
-          },
-          "401": {
-            "description": "authentication failed"
-          },
-          "403": {
-            "description": "no token provided or not an admin"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/users/self": {
-      "get": {
-        "tags": ["Admin", "PM", "User", "Owner"],
-        "summary": "Read self",
-        "description": "Reading current user data.",
-        "operationId": "ReadSelf",
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "read self account detail success"
-          },
-          "403": {
-            "description": "no token provided"
-          },
-          "404": {
-            "description": "user not found"
-          },
-          "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
         "deprecated": false
       }
     },
     "/api/articles": {
+      "get": {
+        "tags": ["ARTICLES"],
+        "summary": "Read Articles",
+        "description": "Get all articles",
+        "operationId": "ReadArticles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Get articles success"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      },
       "post": {
-        "tags": ["Admin", "PM", "User"],
-        "summary": "Create article",
-        "description": "Create a new article.",
+        "tags": ["ARTICLES"],
+        "summary": "Create Article",
+        "description": "Create article",
         "operationId": "CreateArticle",
+        "parameters": [],
         "security": [
           {
             "httpBearer": []
@@ -429,71 +141,28 @@
                 "$ref": "#/components/schemas/CreateArticleRequest"
               },
               "example": {
-                "title": "New Admin's Title",
-                "content": "article content"
+                "title": "Article Title",
+                "content": "Article content"
               }
             }
           },
           "required": true
         },
         "responses": {
-          "201": {
-            "description": "article created"
+          "200": {
+            "description": "Article created"
           },
           "400": {
-            "description": "required request body is missing or does not meet standards"
+            "description": "Bad input"
           },
           "401": {
-            "description": "authentication failed"
+            "description": "Authentication failed"
           },
           "403": {
-            "description": "no token provided"
+            "description": "No token provided or not an user"
           },
           "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      },
-      "get": {
-        "tags": ["Public", "Admin", "PM", "User"],
-        "summary": "Read articles",
-        "description": "Get all articles.",
-        "operationId": "ReadArticles",
-        "responses": {
-          "200": {
-            "description": "read articles success"
-          },
-          "500": {
-            "description": "server error"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/articles/mine": {
-      "get": {
-        "tags": ["Admin", "PM", "User", "Owner"],
-        "summary": "Read my article",
-        "description": "Get all articles of current user.",
-        "operationId": "ReadMyArticle",
-        "security": [
-          {
-            "httpBearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "read current login user article success"
-          },
-          "401": {
-            "description": "authentication failed"
-          },
-          "403": {
-            "description": "no token provided"
-          },
-          "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
         "deprecated": false
@@ -501,16 +170,16 @@
     },
     "/api/articles/{article_id}": {
       "get": {
-        "tags": ["Public", "Admin", "PM", "User"],
-        "summary": "Read article",
-        "description": "Get an article with specifying id as request header.",
+        "tags": ["ARTICLES"],
+        "summary": "Read Article",
+        "description": "Get article by id",
         "operationId": "ReadArticle",
         "parameters": [
           {
             "in": "path",
             "name": "article_id",
             "required": true,
-            "description": "id of an article",
+            "description": "article id",
             "schema": {
               "type": "integer",
               "minimum": 1
@@ -519,31 +188,31 @@
         ],
         "responses": {
           "200": {
-            "description": "read an article success"
+            "description": "Get article success"
           },
           "400": {
-            "description": "no param id provided"
+            "description": "Param article_id is not exists"
           },
           "404": {
-            "description": "article not found"
+            "description": "Article not found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
         "deprecated": false
       },
       "put": {
-        "tags": ["Admin", "Owner"],
-        "summary": "Update article",
-        "description": "update an article with specifying id as request header if current user have authorization.",
+        "tags": ["ARTICLES"],
+        "summary": "Update Article",
+        "description": "Update article by article id",
         "operationId": "UpdateArticle",
         "parameters": [
           {
             "in": "path",
             "name": "article_id",
             "required": true,
-            "description": "id of an article",
+            "description": "article id",
             "schema": {
               "type": "integer",
               "minimum": 1
@@ -563,7 +232,8 @@
                 "$ref": "#/components/schemas/UpdateArticleRequest"
               },
               "example": {
-                "title": "New Title Updated"
+                "title": "Updated Article Title",
+                "content": "Updated article content"
               }
             }
           },
@@ -571,34 +241,37 @@
         },
         "responses": {
           "200": {
-            "description": "article updated"
+            "description": "Article updated"
           },
           "400": {
-            "description": "no param id provided, required request body is missing, or does not meet standards"
+            "description": "Bad input or param article_id not exists"
           },
           "401": {
-            "description": "authentication failed"
+            "description": "Authentication failed"
           },
           "403": {
-            "description": "no token provided, not an admin, or not an owner"
+            "description": "No token provided or not article owner"
+          },
+          "404": {
+            "description": "Article not found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
         "deprecated": false
       },
       "delete": {
-        "tags": ["Admin", "Owner"],
-        "summary": "Delete article",
-        "description": "delete an article with specifying id as request header if user have authorization.",
+        "tags": ["ARTICLES"],
+        "summary": "Delete Article",
+        "description": "Delete article by id",
         "operationId": "DeleteArticle",
         "parameters": [
           {
             "in": "path",
             "name": "article_id",
             "required": true,
-            "description": "id of an article",
+            "description": "article id",
             "schema": {
               "type": "integer",
               "minimum": 1
@@ -612,36 +285,206 @@
         ],
         "responses": {
           "200": {
-            "description": "article deleted"
+            "description": "Article deleted"
           },
           "400": {
-            "description": "no param id provided"
-          },
-          "401": {
-            "description": "authentication failed"
+            "description": "Param article_id is not exists"
           },
           "403": {
-            "description": "no token provided, not an admin, or not an owner"
+            "description": "No token provided or not article owner"
+          },
+          "404": {
+            "description": "Article not found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
         "deprecated": false
       }
     },
-    "/api/comments/{article_id}": {
+    "/api/users": {
+      "get": {
+        "tags": ["USER"],
+        "summary": "Read Profile",
+        "description": "Get current user detail",
+        "operationId": "ReadProfile",
+        "parameters": [],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get profile success"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an user"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      },
+      "put": {
+        "tags": ["USER"],
+        "summary": "Edit Profile",
+        "description": "Update user profile",
+        "operationId": "EditProfile",
+        "parameters": [],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditProfileRequest"
+              },
+              "example": {
+                "name": "doni",
+                "username": "doniUpdated",
+                "email": "doniupdated@gmail.com"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated"
+          },
+          "400": {
+            "description": "Bad input or duplicate account found"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/users/{user_id}/articles": {
+      "get": {
+        "tags": ["USER ARTICLE"],
+        "summary": "Read User Articles",
+        "description": "Get current user articles",
+        "operationId": "ReadUserArticles",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "description": "user id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get user articles success"
+          },
+          "400": {
+            "description": "Param user_id is not exists"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an user"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/users/{user_id}/comments": {
+      "get": {
+        "tags": ["USER COMMENT"],
+        "summary": "Read User Comments",
+        "description": "Get current user comments",
+        "operationId": "ReadUserComments",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "description": "user id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get user comments success"
+          },
+          "400": {
+            "description": "Param user_id is not exists"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided, not an user, or not profile owner"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/users/comments/{article_id}": {
       "post": {
-        "tags": ["Admin", "PM", "User"],
-        "summary": "Create comment",
-        "description": "Create a new comment based on an article",
-        "operationId": "CreateComment",
+        "tags": ["USER COMMENT"],
+        "summary": "Create Coment",
+        "description": "Create a comment",
+        "operationId": "CreateComent",
         "parameters": [
           {
             "in": "path",
             "name": "article_id",
             "required": true,
-            "description": "id of an article",
+            "description": "article id",
             "schema": {
               "type": "integer",
               "minimum": 1
@@ -658,7 +501,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateCommentRequest"
+                "$ref": "#/components/schemas/CreateComentRequest"
               },
               "example": {
                 "content": "pertamax"
@@ -668,85 +511,252 @@
           "required": true
         },
         "responses": {
-          "201": {
-            "description": "comment created"
+          "200": {
+            "description": "Comment created"
           },
           "400": {
-            "description": "no param articleId provided, required request body is missing, or does not meet standards"
+            "description": "Bad input or param article_id is not exists"
           },
           "401": {
-            "description": "authentication failed"
+            "description": "Authentication failed"
           },
           "403": {
-            "description": "no token provided"
+            "description": "No token provided or not an user"
           },
           "404": {
-            "description": "article not found"
+            "description": "Article not found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
-        "deprecated": false,
-        "servers": [
-          {
-            "url": "http://localhost:3000/api/comments",
-            "variables": {}
-          }
-        ]
-      },
-      "get": {
-        "tags": ["Public", "Admin", "PM", "User"],
-        "summary": "Read comments",
-        "description": "Read comments based on an article",
-        "operationId": "ReadComments",
+        "deprecated": false
+      }
+    },
+    "/api/users/comments/{comment_id}": {
+      "delete": {
+        "tags": ["USER COMMENT"],
+        "summary": "Delete Comment",
+        "description": "Delete a comment",
+        "operationId": "DeleteComment",
         "parameters": [
           {
             "in": "path",
-            "name": "article_id",
+            "name": "comment_id",
             "required": true,
-            "description": "id of an article",
+            "description": "comment id",
             "schema": {
               "type": "integer",
               "minimum": 1
             }
           }
         ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "read comments of an article success"
+            "description": "Comment deleted"
           },
           "400": {
-            "description": "no param articleId provided"
+            "description": "Param comment_id is not exists"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided, not an user, or not comment owner"
           },
           "404": {
-            "description": "article not found"
+            "description": "Comment not found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
-        "deprecated": false,
-        "servers": [
-          {
-            "url": "http://localhost:3000/api/comments",
-            "variables": {}
-          }
-        ]
+        "deprecated": false
       }
     },
-    "/api/comments/{comment_id}": {
-      "put": {
-        "tags": ["Admin", "Owner"],
-        "summary": "Update comment",
-        "description": "Update a comment of an article",
-        "operationId": "UpdateComment",
+    "/api/articles/{article_id}/comments": {
+      "get": {
+        "tags": ["COMMENT"],
+        "summary": "Read Comments",
+        "description": "Get comments by article id",
+        "operationId": "ReadComments",
         "parameters": [
           {
             "in": "path",
-            "name": "comment_id",
+            "name": "article_id",
             "required": true,
-            "description": "id of an comment",
+            "description": "article id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get comments of an user article success"
+          },
+          "400": {
+            "description": "Param article_id is not exists"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an user"
+          },
+          "404": {
+            "description": "Article not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": ["ADMIN USER"],
+        "summary": "Read Users",
+        "description": "Admin get all user",
+        "operationId": "ReadUsers",
+        "parameters": [],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get users success"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      },
+      "post": {
+        "tags": ["ADMIN USER"],
+        "summary": "Create User",
+        "description": "Admin create new user",
+        "operationId": "CreateUser",
+        "parameters": [],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              },
+              "example": {
+                "name": "Doni created",
+                "username": "DoniCreated",
+                "email": "doniCreated@gmail.com",
+                "password": "12345678"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "User created"
+          },
+          "400": {
+            "description": "Bad input or duplicate account found"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/admin/users/{user_id}": {
+      "get": {
+        "tags": ["ADMIN USER"],
+        "summary": "Read User",
+        "description": "Admin get user by Id",
+        "operationId": "ReadUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "description": "user id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get user success"
+          },
+          "400": {
+            "description": "Param user_id is not exists"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      },
+      "put": {
+        "tags": ["ADMIN USER"],
+        "summary": "Update User",
+        "description": "Admin update user",
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "description": "user id",
             "schema": {
               "type": "integer",
               "minimum": 1
@@ -763,10 +773,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateCommentRequest"
+                "$ref": "#/components/schemas/UpdateUserRequest"
               },
               "example": {
-                "content": "premium"
+                "name": "User updated",
+                "username": "UserUpdated",
+                "email": "userUpdated@gmail.com"
               }
             }
           },
@@ -774,40 +786,37 @@
         },
         "responses": {
           "200": {
-            "description": "comment updated"
+            "description": "User updated"
           },
           "400": {
-            "description": "no param commentId provided"
+            "description": "Bad input, ing to modify superadmining to modify superadmin account, or duplicate account found"
           },
           "401": {
-            "description": "authentication failed"
+            "description": "Authentication failed"
           },
           "403": {
-            "description": "no token provided, not an admin, or not an owner"
+            "description": "No token provided or not an admin"
+          },
+          "404": {
+            "description": "User not found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
-        "deprecated": false,
-        "servers": [
-          {
-            "url": "http://localhost:3000/api/comments",
-            "variables": {}
-          }
-        ]
+        "deprecated": false
       },
       "delete": {
-        "tags": ["Admin"],
-        "summary": "Delete comment",
-        "description": "Delete a comment of an article for admin role",
-        "operationId": "DeleteComment",
+        "tags": ["ADMIN USER"],
+        "summary": "Delete User",
+        "description": "Admin delete user",
+        "operationId": "DeleteUser",
         "parameters": [
           {
             "in": "path",
-            "name": "comment_id",
+            "name": "user_id",
             "required": true,
-            "description": "id of an comment",
+            "description": "user id",
             "schema": {
               "type": "integer",
               "minimum": 1
@@ -821,28 +830,216 @@
         ],
         "responses": {
           "200": {
-            "description": "comment deleted"
+            "description": "User deleted"
           },
           "400": {
-            "description": "no param commentId provided"
+            "description": "Bad input, param user_id is not exists, or intending to modify superadmin"
           },
           "401": {
-            "description": "authentication failed"
+            "description": "Authentication failed"
           },
           "403": {
-            "description": "no token provided or not an admin"
+            "description": "No token provided or not an admin"
+          },
+          "404": {
+            "description": "User not found"
           },
           "500": {
-            "description": "server error"
+            "description": "Server error"
           }
         },
-        "deprecated": false,
-        "servers": [
+        "deprecated": false
+      }
+    },
+    "/api/admin/articles": {
+      "get": {
+        "tags": ["ADMIN ARTICLES"],
+        "summary": "Read Articles",
+        "description": "Admin get all articles",
+        "operationId": "GetReadArticles",
+        "parameters": [],
+        "security": [
           {
-            "url": "http://localhost:3000/api/comments",
-            "variables": {}
+            "httpBearer": []
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Get articles success"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/admin/articles/{article_id}": {
+      "get": {
+        "tags": ["ADMIN ARTICLES"],
+        "summary": "Read Article",
+        "description": "Admin get article by id",
+        "operationId": "GetReadArticle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "article_id",
+            "required": true,
+            "description": "article id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get article success"
+          },
+          "400": {
+            "description": "Param article_id is not exists"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "404": {
+            "description": "Article not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      },
+      "delete": {
+        "tags": ["ADMIN ARTICLES"],
+        "summary": "Delete article",
+        "description": "Admin delete article by id",
+        "operationId": "Deletearticle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "article_id",
+            "required": true,
+            "description": "article id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article deleted"
+          },
+          "400": {
+            "description": "Param article_id is not exists"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "404": {
+            "description": "Article not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/admin/comments": {
+      "get": {
+        "tags": ["ADMIN COMMENT"],
+        "summary": "Read Comments",
+        "description": "Admin get comments",
+        "operationId": "GetReadComments",
+        "parameters": [],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get comments success"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/admin/comments/{comment_id}": {
+      "delete": {
+        "tags": ["ADMIN COMMENT"],
+        "summary": "Delete Comment",
+        "description": "Admin delete comments by comment id\n",
+        "operationId": "DeleteComment1",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "comment_id",
+            "required": true,
+            "description": "comment id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "security": [
+          {
+            "httpBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get comments success"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "403": {
+            "description": "No token provided or not an admin"
+          },
+          "404": {
+            "description": "Comment not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "deprecated": false
       }
     }
   },
@@ -900,59 +1097,6 @@
           "password": "12345678"
         }
       },
-      "CreateUserRequest": {
-        "title": "CreateUserRequest",
-        "required": ["name", "username", "email", "password"],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "roles element can be either ADMIN, PM, or USER"
-          }
-        },
-        "example": {
-          "name": "doniPM",
-          "username": "doniPM",
-          "email": "doniPM@gmail.com",
-          "password": "12345678",
-          "roles": ["PM"]
-        }
-      },
-      "UpdateUserRequest": {
-        "title": "UpdateUserRequest",
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        },
-        "example": {
-          "name": "Updated Doni PM",
-          "username": "updatedDoniPM",
-          "email": "updatedDoniPM@gmail.com"
-        }
-      },
       "CreateArticleRequest": {
         "title": "CreateArticleRequest",
         "required": ["title", "content"],
@@ -972,6 +1116,7 @@
       },
       "UpdateArticleRequest": {
         "title": "UpdateArticleRequest",
+        "required": [],
         "type": "object",
         "properties": {
           "title": {
@@ -986,8 +1131,29 @@
           "content": "Updated article content"
         }
       },
-      "CreateCommentRequest": {
-        "title": "CreateCommentRequest",
+      "EditProfileRequest": {
+        "title": "EditProfileRequest",
+        "required": [],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "name": "doni",
+          "username": "doniUpdated",
+          "email": "doniupdated@gmail.com"
+        }
+      },
+      "CreateComentRequest": {
+        "title": "CreateComentRequest",
         "required": ["content"],
         "type": "object",
         "properties": {
@@ -999,48 +1165,96 @@
           "content": "pertamax"
         }
       },
-      "UpdateCommentRequest": {
-        "title": "UpdateCommentRequest",
-        "required": ["content"],
+      "CreateUserRequest": {
+        "title": "CreateUserRequest",
+        "required": ["name", "username", "email", "password"],
         "type": "object",
         "properties": {
-          "content": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
             "type": "string"
           }
         },
         "example": {
-          "content": "premium"
+          "name": "Doni created",
+          "username": "DoniCreated",
+          "email": "doniCreated@gmail.com",
+          "password": "12345678"
+        }
+      },
+      "UpdateUserRequest": {
+        "title": "UpdateUserRequest",
+        "required": [],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "name": "User updated",
+          "username": "UserUpdated",
+          "email": "userUpdated@gmail.com"
         }
       }
     },
     "securitySchemes": {
       "httpBearer": {
         "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "scheme": "bearer"
       }
     }
   },
   "tags": [
     {
-      "name": "Public",
-      "description": "clients without account"
+      "name": "AUTH",
+      "description": "authentication"
     },
     {
-      "name": "Admin",
-      "description": "clients with admin role"
+      "name": "ARTICLES",
+      "description": "Article functionality"
     },
     {
-      "name": "PM",
-      "description": "clients with PM role"
+      "name": "USER",
+      "description": "User functionality"
     },
     {
-      "name": "User",
-      "description": "clients with user role"
+      "name": "USER ARTICLE",
+      "description": "Article functionality within the scope of the user role"
     },
     {
-      "name": "Owner",
-      "description": "clients with authorization of some actions"
+      "name": "USER COMMENT",
+      "description": "Comment functionality within the scope of the user role"
+    },
+    {
+      "name": "COMMENT",
+      "description": "Comment functionality"
+    },
+    {
+      "name": "ADMIN USER",
+      "description": "user functionality within the scope of the admin role"
+    },
+    {
+      "name": "ADMIN ARTICLES",
+      "description": "article functionality within the scope of the admin role"
+    },
+    {
+      "name": "ADMIN COMMENT",
+      "description": "comment functionality within the scope of the admin role"
     }
   ]
 }

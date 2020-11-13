@@ -1,70 +1,29 @@
 const asyncHandler = require('express-async-handler');
-const bcrypt = require('bcryptjs');
 
 const db = require('../config/db.js');
 
-const { Op } = db.Sequelize;
-
 const User = db.user;
-const Role = db.role;
+const Comment = db.comment;
+const Article = db.article;
 
-const read = asyncHandler(async (req, res) => {
+const readProfile = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findAll({
-      attributes: ['id', 'name', 'username', 'email'],
-      include: [
-        {
-          model: Role,
-          attributes: ['id', 'name'],
-          through: {
-            attributes: ['userId', 'roleId'],
-          },
-        },
-      ],
-    });
+    const { userId } = req;
+    const user = await User.findByPk(userId);
 
-    return res.status(200).json({
-      description: 'All User',
-      user,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.json(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-const create = asyncHandler(async (req, res) => {
-  try {
-    const password = await bcrypt.hash(req.body.password, 8);
-    const createdUser = await User.create({
-      name: req.body.name,
-      username: req.body.username,
-      email: req.body.email,
-      password,
-    });
-
-    if (req.body.roles && req.body.roles.length > 0) {
-      const roles = await Role.findAll({
-        where: {
-          name: {
-            [Op.or]: req.body.roles,
-          },
-        },
-      });
-
-      await createdUser.setRoles(roles);
-    } else {
-      const userRole = await Role.findOne({
-        where: {
-          name: 'USER',
-        },
-      });
-
-      await createdUser.setRoles([userRole.id]);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: `User with id equals to ${userId} not found` });
     }
 
-    return res.status(201).json({
-      message: 'User has been created',
+    return res.status(200).json({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     });
   } catch (error) {
     console.error(error);
@@ -72,97 +31,15 @@ const create = asyncHandler(async (req, res) => {
   }
 });
 
-const update = asyncHandler(async (req, res) => {
+const updateProfile = asyncHandler(async (req, res) => {
   try {
-    const { name, username, email } = req.body;
+    const { userId } = req;
 
-    const [currentUser, targetUser] = await Promise.all([
-      User.findOne({
-        where: {
-          id: req.userId,
-        },
-      }),
-      User.findOne({
-        where: {
-          id: req.params.id,
-        },
-      }),
-    ]);
-
-    if (!targetUser) {
-      return res.status(404).json({
-        message: `User with id equals to ${req.params.id} is not found`,
-      });
-    }
-
-    // if superadmin
-    if (targetUser.id === 1) {
-      return res
-        .status(400)
-        .json({ message: 'You are not allowed to delete superadmin' });
-    }
-
-    const currentUserRoles = await currentUser
-      .getRoles()
-      .then((roles) => roles.map((role) => role.name));
-
-    if (
-      currentUser.id === req.userId ||
-      (currentUserRoles &&
-        currentUserRoles.length > 0 &&
-        currentUserRoles.includes('ADMIN'))
-    ) {
-      if (req.body.roles && req.body.roles.length > 0) {
-        const [targetUserRoles] = await Promise.all([
-          Role.findAll({
-            where: {
-              name: {
-                [Op.or]: req.body.roles,
-              },
-            },
-          }),
-          User.update(
-            {
-              name,
-              username,
-              email,
-            },
-            {
-              where: {
-                id: req.params.id,
-              },
-            },
-          ),
-        ]);
-        await targetUser.setRoles(targetUserRoles);
-      } else {
-        const [targetUserRole] = await Promise.all([
-          Role.findOne({
-            where: {
-              name: 'USER',
-            },
-          }),
-          User.update(
-            {
-              name,
-              username,
-              email,
-            },
-            {
-              where: {
-                id: req.params.id,
-              },
-            },
-          ),
-        ]);
-        await targetUser.setRoles([targetUserRole.id]);
-      }
-    } else {
-      return res.status(403).json({
-        message:
-          "You're not able to update role, only admin and owner are authorized",
-      });
-    }
+    await User.update(req.body, {
+      where: {
+        id: userId,
+      },
+    });
 
     return res.status(200).json({
       message: 'User has been updated',
@@ -173,58 +50,18 @@ const update = asyncHandler(async (req, res) => {
   }
 });
 
-const destroy = asyncHandler(async (req, res) => {
+const readUserArticles = asyncHandler(async (req, res) => {
   try {
-    const { id } = req.params;
+    const user = await User.findByPk(req.userId);
 
-    // if superadmin
-    if (parseInt(id) === 1) {
+    if (!user) {
       return res
-        .status(400)
-        .json({ message: 'You are not allowed to delete superadmin' });
+        .status(404)
+        .json({ message: `User with id equals to ${req.userId} not found` });
     }
 
-    await User.destroy({
-      where: {
-        id,
-      },
-    });
-
+    const articles = await user.getArticles();
     return res.status(200).json({
-      message: 'User has been deleted',
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-const detail = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findByPk(id);
-
-    if (!user) {
-      return res.status(404).json({ message: 'Not Found' });
-    }
-
-    const [roles, articles] = await Promise.all([
-      user
-        .getRoles()
-        .then((roles) =>
-          roles.map((role) => ({ id: role.id, name: role.name })),
-        ),
-      user.getArticles(),
-    ]);
-
-    return res.status(200).json({
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      roles,
       articles,
     });
   } catch (error) {
@@ -233,33 +70,71 @@ const detail = asyncHandler(async (req, res) => {
   }
 });
 
-const self = asyncHandler(async (req, res) => {
+const readUserComments = asyncHandler(async (req, res) => {
   try {
-    const id = req.userId;
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(req.userId);
 
     if (!user) {
-      return res.status(404).json({ message: 'Not Found' });
+      return res
+        .status(404)
+        .json({ message: `User with id equals to ${req.userId} not found` });
     }
 
-    const [roles, articles] = await Promise.all([
-      user
-        .getRoles()
-        .then((roles) =>
-          roles.map((role) => ({ id: role.id, name: role.name })),
-        ),
-      user.getArticles(),
+    const comments = await user.getComments();
+    return res.status(200).json({
+      comments,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+const createComment = asyncHandler(async (req, res) => {
+  try {
+    const articleId = req.params.article_id;
+    const article = await Article.findByPk(articleId);
+
+    if (!article) {
+      return res
+        .status(404)
+        .json({ message: `Article with id equals to ${articleId} not found` });
+    }
+
+    const comment = await Comment.create({
+      content: req.body.content,
+    });
+
+    await Promise.all([
+      comment.setUser(req.userId),
+      comment.setArticle(article.id),
     ]);
 
     return res.status(200).json({
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      roles,
-      articles,
+      comment,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+const deleteComment = asyncHandler(async (req, res) => {
+  try {
+    const commentId = req.params.comment_id;
+
+    const result = await Comment.destroy({
+      where: { id: commentId },
+    });
+
+    if (result === 0) {
+      return res
+        .status(404)
+        .json({ message: `Comment with id equals to ${commentId} not found` });
+    }
+
+    return res.status(200).json({
+      message: 'Comment has been deleted',
     });
   } catch (error) {
     console.error(error);
@@ -268,10 +143,10 @@ const self = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  read,
-  create,
-  update,
-  destroy,
-  detail,
-  self,
+  readProfile,
+  updateProfile,
+  readUserArticles,
+  readUserComments,
+  createComment,
+  deleteComment,
 };

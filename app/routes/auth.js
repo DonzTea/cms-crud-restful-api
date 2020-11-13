@@ -12,17 +12,14 @@ router
     '/signup',
     [
       globalMiddleware.isRequestBodyAnObject,
-      authMiddleware.signupBodyValidation,
-      userMiddleware.checkDuplicateUsernameOrEmail,
+      authMiddleware.signupBodyRequired,
+      userMiddleware.checkDuplicateAccount,
     ],
     authController.signup,
   )
   .post(
     '/signin',
-    [
-      globalMiddleware.isRequestBodyAnObject,
-      authMiddleware.signinBodyValidation,
-    ],
+    [globalMiddleware.isRequestBodyAnObject, authMiddleware.signinBodyRequired],
     authController.signin,
   );
 

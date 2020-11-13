@@ -2,11 +2,14 @@ const { body } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 
-const config = require('../config/config.js');
-const User = require('../config/db.js').user;
 const { validate } = require('../utils/middleware.js');
+const config = require('../config/config.js');
+const db = require('../config/db.js');
+const User = db.user;
+const Article = db.article;
+const Comment = db.comment;
 
-const signupBodyValidation = validate([
+const signupBodyRequired = validate([
   body('name')
     .exists({ checkFalsy: true, checkNull: true })
     .withMessage('is not exists')
@@ -53,7 +56,7 @@ const signupBodyValidation = validate([
     }),
 ]);
 
-const signinBodyValidation = validate([
+const signinBodyRequired = validate([
   body('username')
     .exists({ checkFalsy: true, checkNull: true })
     .withMessage('is not exists')
@@ -78,7 +81,7 @@ const signinBodyValidation = validate([
 
 const verifyToken = asyncHandler(async (req, res, next) => {
   try {
-    let token = req.headers['authorization']; // Express headers are auto converted to lowercase
+    let token = req.headers['authorization'];
     if (!token) {
       return res.status(403).json({
         auth: false,
@@ -92,7 +95,6 @@ const verifyToken = asyncHandler(async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, config.secret);
-
     req.userId = decoded.id;
     next();
   } catch (error) {
@@ -106,37 +108,112 @@ const verifyToken = asyncHandler(async (req, res, next) => {
 
 const isAdmin = asyncHandler(async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.userId);
-    const roles = await user.getRoles();
+    if (req.userId) {
+      const user = await User.findByPk(req.userId);
+      const roles = await user
+        .getRoles()
+        .then((roles) => roles.map((role) => role.name));
 
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i].name.toUpperCase() === 'ADMIN') {
+      if (roles.includes('ADMIN')) {
         return next();
       }
     }
 
-    return res.status(403).json({ message: 'Require Admin Role!' });
+    return res.status(403).json({
+      message: 'You are not admin, access denied',
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
-const isPmOrAdmin = asyncHandler(async (req, res, next) => {
+const isUser = asyncHandler(async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.userId);
-    const roles = await user.getRoles();
+    if (req.userId) {
+      const user = await User.findByPk(req.userId);
+      const roles = await user
+        .getRoles()
+        .then((roles) => roles.map((role) => role.name));
 
-    for (let i = 0; i < roles.length; i++) {
-      if (
-        roles[i].name.toUpperCase() === 'PM' ||
-        roles[i].name.toUpperCase() === 'ADMIN'
-      ) {
+      if (roles.includes('USER')) {
         return next();
       }
     }
 
-    return res.status(403).json({ message: 'Require PM or Admin Roles!' });
+    return res.status(403).json({
+      message: 'You are not user, access denied',
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+const isProfileOwner = asyncHandler(async (req, res, next) => {
+  try {
+    const currentUserId = req.userId;
+    const targetUserId = req.params.user_id;
+
+    if (currentUserId !== targetUserId) {
+      return res.status(403).json({
+        message: 'You are not profile owner, access denied',
+      });
+    }
+
+    return next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+const isArticleOwner = asyncHandler(async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const articleId = req.params.article_id;
+    const article = await Article.findByPk(articleId);
+
+    if (!article) {
+      return res.status(404).json({
+        message: `Article with id equals to ${articleId} not found`,
+      });
+    }
+
+    const owner = await article.getUser();
+    if (owner.id !== userId) {
+      return res.status(403).json({
+        message: 'You are not article owner, access denied',
+      });
+    }
+
+    return next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+const isCommentOwner = asyncHandler(async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const commentId = req.params.comment_id;
+    const comment = await Comment.findByPk(commentId);
+
+    if (!comment) {
+      return res.status(404).json({
+        message: `Comment with id equals to ${commentId} not found`,
+      });
+    }
+
+    const owner = await comment.getUser();
+    if (owner.id !== userId) {
+      return res.status(403).json({
+        message: 'You are not comment owner, access denied',
+      });
+    }
+
+    return next();
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
@@ -144,9 +221,12 @@ const isPmOrAdmin = asyncHandler(async (req, res, next) => {
 });
 
 module.exports = {
-  signupBodyValidation,
-  signinBodyValidation,
+  signupBodyRequired,
+  signinBodyRequired,
   verifyToken,
   isAdmin,
-  isPmOrAdmin,
+  isUser,
+  isProfileOwner,
+  isArticleOwner,
+  isCommentOwner,
 };

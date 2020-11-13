@@ -7,7 +7,7 @@ const db = require('../config/db.js');
 const User = db.user;
 const Comment = db.comment;
 
-const createCommentBodyValidation = validate([
+const bodyRequired = validate([
   body('content')
     .exists({ checkFalsy: true, checkNull: true })
     .withMessage('is not exists')
@@ -17,10 +17,6 @@ const createCommentBodyValidation = validate([
     .withMessage('is not a string'),
 ]);
 
-const updateCommentBodyValidation = validate([
-  body('content').optional().isString().trim().withMessage('is not a string'),
-]);
-
 const checkParamArticleId = validate([
   param('articleId')
     .exists({ checkFalsy: true, checkNull: true })
@@ -28,8 +24,8 @@ const checkParamArticleId = validate([
     .bail(),
 ]);
 
-const checkParamCommentId = validate([
-  param('commentId')
+const isParamCommentIdExists = validate([
+  param('comment_id')
     .exists({ checkFalsy: true, checkNull: true })
     .withMessage('is not exists')
     .bail(),
@@ -64,10 +60,34 @@ const isAuthorized = asyncHandler(async (req, res, next) => {
   }
 });
 
+const isCurentUserAnOwner = asyncHandler(async (req, res, next) => {
+  try {
+    if (req.userId) {
+      const commentId = req.params.comment_id;
+      const comment = await Comment.findByPk(commentId);
+      const owner = await comment.getUser();
+      if (owner.id === req.userId) {
+        return next();
+      } else {
+        return res.status(403).json({
+          message: 'You are not this comment owner',
+        });
+      }
+    }
+
+    return res.status(401).json({
+      message: 'Authorization failed',
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 module.exports = {
-  createCommentBodyValidation,
-  updateCommentBodyValidation,
+  bodyRequired,
   checkParamArticleId,
-  checkParamCommentId,
   isAuthorized,
+  isParamCommentIdExists,
+  isCurentUserAnOwner,
 };

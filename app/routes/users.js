@@ -1,49 +1,51 @@
 const express = require('express');
 
-const userMiddleware = require('../middlewares/user.js');
 const authMiddleware = require('../middlewares/auth.js');
-const userController = require('../controllers/user.js');
 const globalMiddleware = require('../middlewares/global.js');
+const userMiddleware = require('../middlewares/user.js');
+const articleMiddleware = require('../middlewares/article.js');
+const commentMiddleware = require('../middlewares/comment.js');
+const userController = require('../controllers/user.js');
 
 const router = express.Router();
 
+// only user role allowed
+router.use([authMiddleware.verifyToken, authMiddleware.isUser]);
+
 router
-  .get('/', userController.read)
-  .post(
+  .get('/', userController.readProfile)
+  .put(
     '/',
     [
-      authMiddleware.verifyToken,
-      userMiddleware.isAdmin,
       globalMiddleware.isRequestBodyAnObject,
-      userMiddleware.createUserBodyValidation,
-      userMiddleware.checkDuplicateUsernameOrEmail,
-      userMiddleware.isRolesValid,
+      userMiddleware.bodyOptional,
+      userMiddleware.checkDuplicateAccount,
     ],
-    userController.create,
+    userController.updateProfile,
   )
-  .put(
-    '/:id',
+  .get(
+    '/:user_id/articles',
+    [userMiddleware.isParamUserIdExists],
+    userController.readUserArticles,
+  )
+  .get(
+    '/:user_id/comments',
+    [authMiddleware.isProfileOwner, userMiddleware.isParamUserIdExists],
+    userController.readUserComments,
+  )
+  .post(
+    '/comments/:article_id',
     [
-      authMiddleware.verifyToken,
-      userMiddleware.checkParamIdExistence,
+      articleMiddleware.isParamArticleIdExists,
       globalMiddleware.isRequestBodyAnObject,
-      userMiddleware.updateUserBodyValidation,
-      userMiddleware.isAuthorized,
-      userMiddleware.checkDuplicateUsernameOrEmail,
-      userMiddleware.isRolesValid,
+      commentMiddleware.bodyRequired,
     ],
-    userController.update,
+    userController.createComment,
   )
   .delete(
-    '/:id',
-    [
-      authMiddleware.verifyToken,
-      userMiddleware.checkParamIdExistence,
-      userMiddleware.isAdmin,
-    ],
-    userController.destroy,
-  )
-  .get('/self', [authMiddleware.verifyToken], userController.self)
-  .get('/:id', [userMiddleware.checkParamIdExistence], userController.detail);
+    '/comments/:comment_id',
+    [authMiddleware.isCommentOwner, commentMiddleware.isParamCommentIdExists],
+    userController.deleteComment,
+  );
 
 module.exports = router;
