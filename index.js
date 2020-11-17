@@ -9,7 +9,7 @@ app.use(cors());
 // json request parser
 app.use(express.json());
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== 'production') {
   // .env configurations
   require('dotenv').config();
 
@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('common'));
 }
 
-// roles table seeder
+// db migration
 // require('./app/utils/dbMigration.js')();
 
 // routes caller

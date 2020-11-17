@@ -1,2 +1,3 @@
+app/client/public/images/*
 node_modules
 .env

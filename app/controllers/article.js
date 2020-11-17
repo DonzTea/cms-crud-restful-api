@@ -8,7 +8,7 @@ const Article = db.article;
 const readArticles = asyncHandler(async (req, res) => {
   try {
     const article = await Article.findAll({
-      attributes: ['id', 'title', 'content'],
+      attributes: ['id', 'title', 'content', 'createdAt', 'updatedAt'],
       include: [
         {
           model: User,

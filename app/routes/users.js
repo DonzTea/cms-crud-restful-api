@@ -17,6 +17,9 @@ router
   .put(
     '/',
     [
+      userMiddleware.uploadAvatar,
+      userMiddleware.validateAvatarFile,
+      userMiddleware.validateAvatarMimetype,
       globalMiddleware.isRequestBodyAnObject,
       userMiddleware.bodyOptional,
       userMiddleware.checkDuplicateAccount,

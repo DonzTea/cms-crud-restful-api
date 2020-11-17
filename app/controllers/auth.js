@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const smtpTransport = require('nodemailer-smtp-transport');
 
 const db = require('../config/db.js');
 const config = require('../config/config.js');
@@ -10,6 +12,30 @@ const Role = db.role;
 
 const signup = asyncHandler(async (req, res) => {
   try {
+    const transport = nodemailer.createTransport(smtpTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+      },
+    }));
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: req.body.email,
+      subject: 'Sending email using node.js',
+      text: 'Thank you for registering!'
+    };
+
+    transport.sendMail(mailOptions, function (err, result) {
+      if (err) {
+        throw new Error(err);
+      } else {
+        transport.close();
+      }
+    });
+
     const password = await bcrypt.hash(req.body.password, 8);
     const [createdUser, userRole] = await Promise.all([
       User.create({
@@ -76,6 +102,9 @@ const signin = asyncHandler(async (req, res) => {
       type: 'Bearer',
       accessToken: token,
       roles,
+      name: user.name,
+      username: user.username,
+      email: user.email
     });
   } catch (error) {
     console.error(error);

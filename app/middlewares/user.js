@@ -1,3 +1,5 @@
+const multer = require('multer');
+
 const { body, param } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
@@ -173,6 +175,45 @@ const isCurentUserAnOwner = asyncHandler(async (req, res, next) => {
   }
 });
 
+const uploadAvatar = (req, res, next) => {
+  const storage = multer.memoryStorage();
+  const upload = multer({ storage }).single('avatar');
+  upload(req, res, (err) => {
+    if (err) {
+      console.error(error);
+      return res.status(500).json({ message: err.message });
+    }
+    next();
+  });
+};
+
+const validateAvatarFile = (req, res, next) => {
+  if (req.file) {
+    const { mimetype } = req.file;
+    if (mimetype.startsWith('image')) {
+      return next();
+    }
+    return res.status(400).json({ message: 'File is not an image file.' });
+  } else {
+    return res.status(400).json({
+      message: 'Cannot read mimetype of uploaded file.',
+    });
+  }
+};
+
+const validateAvatarMimetype = (req, res, next) => {
+  if (req.file) {
+    const { mimetype } = req.file;
+    const allowedMimetypes = ['image/jpeg', 'image/png'];
+    if (allowedMimetypes.includes(mimetype)) {
+      return next();
+    }
+  }
+  return res.status(400).json({
+    message: 'Only .jpeg and .png image files are allowed.',
+  });
+};
+
 module.exports = {
   isUser,
   isTargetSuperadmin,
@@ -181,4 +222,7 @@ module.exports = {
   checkDuplicateAccount,
   isParamUserIdExists,
   isCurentUserAnOwner,
+  uploadAvatar,
+  validateAvatarFile,
+  validateAvatarMimetype,
 };

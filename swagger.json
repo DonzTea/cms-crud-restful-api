@@ -346,20 +346,33 @@
           }
         ],
         "requestBody": {
-          "description": "",
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/EditProfileRequest"
-              },
-              "example": {
-                "name": "doni",
-                "username": "doniUpdated",
-                "email": "doniupdated@gmail.com"
+                "required": [],
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "updated"
+                  },
+                  "username": {
+                    "type": "string",
+                    "example": "updated"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "updated@gmail.com"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
               }
             }
           },
-          "required": true
+          "required": false
         },
         "responses": {
           "200": {
@@ -373,6 +386,9 @@
           },
           "403": {
             "description": "No token provided or not an user"
+          },
+          "404": {
+            "description": "User not found"
           },
           "500": {
             "description": "Server error"
@@ -1129,27 +1145,6 @@
         "example": {
           "title": "Updated Article Title",
           "content": "Updated article content"
-        }
-      },
-      "EditProfileRequest": {
-        "title": "EditProfileRequest",
-        "required": [],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        },
-        "example": {
-          "name": "doni",
-          "username": "doniUpdated",
-          "email": "doniupdated@gmail.com"
         }
       },
       "CreateComentRequest": {
