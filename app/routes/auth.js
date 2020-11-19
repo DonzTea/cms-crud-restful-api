@@ -21,6 +21,9 @@ router
     '/signin',
     [globalMiddleware.isRequestBodyAnObject, authMiddleware.signinBodyRequired],
     authController.signin,
-  );
+  ).get('/forgot-password', authController.renderForgotPassword)
+  .post('/forgot-password', authController.forgotPassword)
+  .get('/reset-password', authController.renderResetPassword)
+  .post('/reset-password', authController.resetPassword);
 
 module.exports = router;

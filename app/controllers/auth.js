@@ -1,8 +1,14 @@
+const path = require('path');
+const async = require('async');
+const crypto = require('crypto');
+
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');
+const hbs = require('nodemailer-express-handlebars');
+const { Op } = require("sequelize");
 
 const db = require('../config/db.js');
 const config = require('../config/config.js');
@@ -10,17 +16,25 @@ const config = require('../config/config.js');
 const User = db.user;
 const Role = db.role;
 
+const transport = nodemailer.createTransport(smtpTransport({
+  service: 'gmail',
+  host: 'smtp.gmail.com',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD
+  },
+}));
+
+const handlebarsOptions = {
+  viewEngine: 'handlebars',
+  viewPath: path.resolve(__dirname + '/../client/public/templates/'),
+  extName: '.html'
+};
+
+transport.use('compile', hbs(handlebarsOptions));
+
 const signup = asyncHandler(async (req, res) => {
   try {
-    const transport = nodemailer.createTransport(smtpTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD
-      },
-    }));
-
     const mailOptions = {
       from: process.env.EMAIL,
       to: req.body.email,
@@ -102,6 +116,7 @@ const signin = asyncHandler(async (req, res) => {
       type: 'Bearer',
       accessToken: token,
       roles,
+      id: user.id,
       name: user.name,
       username: user.username,
       email: user.email
@@ -112,7 +127,141 @@ const signin = asyncHandler(async (req, res) => {
   }
 });
 
+const renderForgotPassword = (req, res) => {
+  return res.sendFile(path.resolve(__dirname + '/../client/public/templates/forgot-password.html'));
+};
+
+const renderResetPassword = (req, res) => {
+  return res.sendFile(path.resolve(__dirname + '/../client/public/templates/reset-password.html'));
+};
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+    async.waterfall([
+      async function (done) {
+        try {
+          const user = await User.findOne({
+            where: { email }
+          });
+
+          if (user) {
+            done(null, user);
+          } else {
+            done('User not found.', null);
+          }
+        } catch (error) {
+          console.error(error);
+          done(err, null)
+        }
+      },
+      function (user, done) {
+        // create the random token
+        crypto.randomBytes(20, function (err, buffer) {
+          const token = buffer.toString('hex');
+          done(err, user, token);
+        });
+      },
+      async function (user, token, done) {
+        await User.update({ reset_password_token: token, reset_password_expires: Date.now() + 86400000 }, { where: { id: user.id } });
+        const updatedUser = await User.findOne({ where: { id: user.id } });
+
+        if (updatedUser) {
+          done(null, token, updatedUser);
+        } else {
+          done('Updated user not found.', token, null);
+        }
+      },
+      function (token, user, done) {
+        const data = {
+          from: process.env.EMAIL,
+          to: user.email,
+          template: 'forgot-password-email',
+          subject: 'Password help has arrived!',
+          context: {
+            url: 'http://localhost:3000/auth/reset-password?token=' + token,
+            name: user.name
+          }
+        };
+
+        transport.sendMail(data, function (err) {
+          if (!err) {
+            return res.status(200).json({ message: 'Kindly check your email for further instructions' });
+          } else {
+            return done(err);
+          }
+        });
+      }
+    ], function (err) {
+      return res.status(422).json({ message: err });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+const resetPassword = asyncHandler(async (req, res, next) => {
+  try {
+    const { token, newPassword, verifyPassword } = req.body;
+    const user = await User.findOne({
+      reset_password_token: token,
+      reset_password_expires: {
+        [Op.gt]: Date.now()
+      }
+    })
+
+    if (user) {
+      if (newPassword === verifyPassword) {
+        user.hash_password = await bcrypt.hash(newPassword, 8);
+        user.reset_password_token = undefined;
+        user.reset_password_expires = undefined;
+        user.save(function (err) {
+          if (err) {
+            return res.status(422).send({
+              message: err
+            });
+          } else {
+            const data = {
+              from: process.env.EMAIL,
+              to: user.email,
+              template: 'reset-password-email',
+              subject: 'Password Reset Confirmation',
+              context: {
+                name: user.name
+              }
+            };
+
+            transport.sendMail(data, function (err) {
+              if (!err) {
+                return res.status(200).json({ message: 'Password reset' });
+              } else {
+                return done(err);
+              }
+            });
+          }
+        });
+      } else {
+        return res.status(422).send({
+          message: 'Passwords do not match'
+        });
+      }
+    } else {
+      return res.status(400).send({
+        message: 'Password reset token is invalid or has expired.'
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 module.exports = {
   signup,
   signin,
+  renderForgotPassword,
+  forgotPassword,
+  renderResetPassword,
+  resetPassword
 };
