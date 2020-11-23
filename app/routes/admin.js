@@ -13,7 +13,7 @@ const router = express.Router();
 router.use([authMiddleware.verifyToken, authMiddleware.isAdmin]);
 
 router
-  .get('/users', adminController.readUsers)
+  .get('/users', [globalMiddleware.paginationQuery], adminController.readUsers)
   .get(
     '/users/:user_id',
     [userMiddleware.isParamUserIdExists],
@@ -44,7 +44,7 @@ router
     [userMiddleware.isParamUserIdExists, userMiddleware.isTargetSuperadmin],
     adminController.deleteUser,
   )
-  .get('/articles', adminController.readArticles)
+  .get('/articles', [globalMiddleware.paginationQuery], adminController.readArticles)
   .get(
     '/articles/:article_id',
     [articleMiddleware.isParamArticleIdExists],
@@ -55,7 +55,7 @@ router
     [articleMiddleware.isParamArticleIdExists],
     adminController.deleteArticle,
   )
-  .get('/comments', adminController.readComments)
+  .get('/comments', [globalMiddleware.paginationQuery], adminController.readComments)
   .delete(
     '/comments/:comment_id',
     [commentMiddleware.isParamCommentIdExists],

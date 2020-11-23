@@ -10,8 +10,15 @@ const Comment = db.comment;
 
 const readUsers = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findAll({
+    const { page, paginate } = req.query;
+
+    const paginationOptions = {
+      page: page || 1,
+      paginate: paginate || 20,
       attributes: ['id', 'name', 'username', 'email'],
+      order: [
+        ['name', 'ASC']
+      ],
       include: [
         {
           model: Role,
@@ -21,12 +28,24 @@ const readUsers = asyncHandler(async (req, res) => {
           },
         },
       ],
-    });
+    }
+    const { docs, pages, total } = await User.paginate(paginationOptions);
 
-    return res.status(200).json({
-      description: 'All User',
-      user,
-    });
+    if (page > pages) {
+      return res.status(400).json({
+        message: `requested page exceeding ${pages} (total pages)`
+      });
+    }
+
+    const result = {
+      description: 'Users',
+      page,
+      users: docs,
+      totalPages: pages,
+      totalData: total
+    }
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error(error);
     return res.json(500).json({ message: 'Internal Server Error' });
@@ -58,6 +77,8 @@ const readUser = asyncHandler(async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
+      reset_password_token: user.reset_password_token,
+      reset_password_expires: user.reset_password_expires,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       roles,
@@ -145,20 +166,39 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 const readArticles = asyncHandler(async (req, res) => {
   try {
-    const article = await Article.findAll({
+    const { page, paginate } = req.query;
+
+    const paginationOptions = {
+      page: page || 1,
+      paginate: paginate || 20,
       attributes: ['id', 'title', 'content'],
+      order: [
+        ['createdAt', 'DESC']
+      ],
       include: [
         {
           model: User,
           attributes: ['id', 'name'],
         },
       ],
-    });
+    }
+    const { docs, pages, total } = await Article.paginate(paginationOptions);
 
-    return res.status(200).json({
-      description: 'All Article',
-      article,
-    });
+    if (page > pages) {
+      return res.status(400).json({
+        message: `requested page exceeding ${pages} (total pages)`
+      });
+    }
+
+    const result = {
+      description: 'Articles',
+      page,
+      articles: docs,
+      totalPages: pages,
+      totalData: total
+    }
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
@@ -224,8 +264,15 @@ const deleteArticle = asyncHandler(async (req, res) => {
 
 const readComments = asyncHandler(async (req, res) => {
   try {
-    const comments = await Comment.findAll({
+    const { page, paginate } = req.query;
+
+    const paginationOptions = {
+      page: page || 1,
+      paginate: paginate || 20,
       attributes: ['id', 'content'],
+      order: [
+        ['createdAt', 'DESC']
+      ],
       include: [
         {
           model: Article,
@@ -236,10 +283,24 @@ const readComments = asyncHandler(async (req, res) => {
           attributes: ['id', 'name'],
         },
       ],
-    });
-    return res.status(200).json({
-      comments,
-    });
+    }
+    const { docs, pages, total } = await Comment.paginate(paginationOptions);
+
+    if (page > pages) {
+      return res.status(400).json({
+        message: `requested page exceeding ${pages} (total pages)`
+      });
+    }
+
+    const result = {
+      description: 'Articles',
+      page,
+      comments: docs,
+      totalPages: pages,
+      totalData: total
+    }
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });

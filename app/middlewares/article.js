@@ -85,5 +85,5 @@ module.exports = {
   bodyRequired,
   bodyOptional,
   isAuthorized,
-  isParamArticleIdExists,
+  isParamArticleIdExists
 };

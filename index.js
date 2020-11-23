@@ -19,7 +19,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // db migration
-// require('./app/utils/dbMigration.js')();
+require('./app/utils/dbMigration.js')();
 
 // routes caller
 require('./app/routes/main.js')(app);

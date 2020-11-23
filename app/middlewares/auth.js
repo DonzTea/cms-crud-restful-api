@@ -79,6 +79,34 @@ const signinBodyRequired = validate([
     .withMessage('is expected to be at least 8 characters long'),
 ]);
 
+const resetPassword = validate([
+  body('newPassword')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail()
+    .isString()
+    .trim()
+    .withMessage('is not a string')
+    .isLength({ min: 8 })
+    .withMessage('is expected to be at least 8 characters long'),
+  body('verifyPassword')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail()
+    .isString()
+    .trim()
+    .withMessage('is not a string')
+    .isLength({ min: 8 })
+    .withMessage('is expected to be at least 8 characters long'),
+  body('token')
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage('is not exists')
+    .bail()
+    .isString()
+    .trim()
+    .withMessage('is not a string'),
+]);
+
 const verifyToken = asyncHandler(async (req, res, next) => {
   try {
     let token = req.headers['authorization'];
@@ -152,8 +180,8 @@ const isUser = asyncHandler(async (req, res, next) => {
 
 const isProfileOwner = asyncHandler(async (req, res, next) => {
   try {
-    const currentUserId = req.userId;
-    const targetUserId = req.params.user_id;
+    const currentUserId = parseInt(req.userId);
+    const targetUserId = parseInt(req.params.user_id);
 
     if (currentUserId !== targetUserId) {
       return res.status(403).json({
@@ -223,6 +251,7 @@ const isCommentOwner = asyncHandler(async (req, res, next) => {
 module.exports = {
   signupBodyRequired,
   signinBodyRequired,
+  resetPassword,
   verifyToken,
   isAdmin,
   isUser,

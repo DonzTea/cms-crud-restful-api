@@ -1,5 +1,4 @@
 const path = require('path');
-const async = require('async');
 const crypto = require('crypto');
 
 const asyncHandler = require('express-async-handler');
@@ -128,72 +127,62 @@ const signin = asyncHandler(async (req, res) => {
 });
 
 const renderForgotPassword = (req, res) => {
-  return res.sendFile(path.resolve(__dirname + '/../client/public/templates/forgot-password.html'));
+  try {
+    return res.sendFile(path.resolve(__dirname + '/../client/public/views/forgot-password.html'));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
 };
 
 const renderResetPassword = (req, res) => {
-  return res.sendFile(path.resolve(__dirname + '/../client/public/templates/reset-password.html'));
+  try {
+    return res.sendFile(path.resolve(__dirname + '/../client/public/views/reset-password.html'));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
 };
 
 const forgotPassword = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
-    async.waterfall([
-      async function (done) {
-        try {
-          const user = await User.findOne({
-            where: { email }
-          });
+    const user = await User.findOne({
+      where: { email }
+    });
 
-          if (user) {
-            done(null, user);
-          } else {
-            done('User not found.', null);
-          }
-        } catch (error) {
-          console.error(error);
-          done(err, null)
-        }
-      },
-      function (user, done) {
-        // create the random token
-        crypto.randomBytes(20, function (err, buffer) {
-          const token = buffer.toString('hex');
-          done(err, user, token);
-        });
-      },
-      async function (user, token, done) {
-        await User.update({ reset_password_token: token, reset_password_expires: Date.now() + 86400000 }, { where: { id: user.id } });
-        const updatedUser = await User.findOne({ where: { id: user.id } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-        if (updatedUser) {
-          done(null, token, updatedUser);
-        } else {
-          done('Updated user not found.', token, null);
-        }
-      },
-      function (token, user, done) {
-        const data = {
-          from: process.env.EMAIL,
-          to: user.email,
-          template: 'forgot-password-email',
-          subject: 'Password help has arrived!',
-          context: {
-            url: 'http://localhost:3000/auth/reset-password?token=' + token,
-            name: user.name
-          }
-        };
-
-        transport.sendMail(data, function (err) {
-          if (!err) {
-            return res.status(200).json({ message: 'Kindly check your email for further instructions' });
-          } else {
-            return done(err);
-          }
-        });
+    crypto.randomBytes(20, async function (err, buffer) {
+      const token = buffer.toString('hex');
+      const [result] = await User.update({ reset_password_token: token, reset_password_expires: Date.now() + 86400000 }, { where: { id: user.id } });
+      if (!result) {
+        return res.status(404).json({ message: 'User not found' });
       }
-    ], function (err) {
-      return res.status(422).json({ message: err });
+
+      const protocol = req.protocol;
+      const host = req.headers.host;
+      const data = {
+        from: process.env.EMAIL,
+        to: user.email,
+        template: 'forgot-password',
+        subject: 'Password help has arrived!',
+        context: {
+          url: `${protocol}://${host}/api/auth/reset-password?token=${token}`,
+          name: user.name
+        }
+      };
+
+      transport.sendMail(data, function (err) {
+        if (!err) {
+          return res.status(200).json({ message: 'Kindly check your email for further instructions' });
+        } else {
+          console.log(err);
+          return res.status(500).json({ message: 'Internal Server Error' });
+        }
+      });
     });
   } catch (error) {
     console.error(error);
@@ -203,52 +192,64 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res, next) => {
   try {
-    const { token, newPassword, verifyPassword } = req.body;
-    const user = await User.findOne({
-      reset_password_token: token,
-      reset_password_expires: {
-        [Op.gt]: Date.now()
-      }
-    })
-
-    if (user) {
-      if (newPassword === verifyPassword) {
-        user.hash_password = await bcrypt.hash(newPassword, 8);
-        user.reset_password_token = undefined;
-        user.reset_password_expires = undefined;
-        user.save(function (err) {
-          if (err) {
-            return res.status(422).send({
-              message: err
-            });
-          } else {
-            const data = {
-              from: process.env.EMAIL,
-              to: user.email,
-              template: 'reset-password-email',
-              subject: 'Password Reset Confirmation',
-              context: {
-                name: user.name
-              }
-            };
-
-            transport.sendMail(data, function (err) {
-              if (!err) {
-                return res.status(200).json({ message: 'Password reset' });
-              } else {
-                return done(err);
-              }
-            });
+    const { newPassword, verifyPassword, token } = req.body;
+    if (newPassword === verifyPassword) {
+      const password = await bcrypt.hash(newPassword, 8);
+      const [originalUserData, result] = await Promise.all([
+        User.findOne({
+          where: {
+            reset_password_token: token,
+            reset_password_expires: {
+              [Op.gt]: Date.now()
+            }
           }
-        });
-      } else {
-        return res.status(422).send({
-          message: 'Passwords do not match'
+        }), User.update({
+          password,
+          reset_password_token: null,
+          reset_password_expires: null
+        }, {
+          where: {
+            reset_password_token: token,
+            reset_password_expires: {
+              [Op.gt]: Date.now()
+            }
+          }
+        })
+      ]);
+
+      if (!originalUserData) {
+        return res.status(404).send({
+          message: 'User not found.'
         });
       }
+
+      if (!result) {
+        return res.status(400).send({
+          message: 'Password reset token is invalid or has expired.'
+        });
+      }
+
+      const data = {
+        from: process.env.EMAIL,
+        to: originalUserData.email,
+        template: 'reset-password',
+        subject: 'Password Reset Confirmation',
+        context: {
+          name: originalUserData.name
+        }
+      };
+
+      transport.sendMail(data, function (err) {
+        if (!err) {
+          return res.status(200).json({ message: 'Password successfully updated' });
+        } else {
+          console.error(error);
+          return res.status(500).json({ message: 'Error while sending email' });
+        }
+      });
     } else {
-      return res.status(400).send({
-        message: 'Password reset token is invalid or has expired.'
+      return res.status(422).send({
+        message: 'Password confirmation does not match'
       });
     }
   } catch (error) {

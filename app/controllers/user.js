@@ -26,6 +26,8 @@ const readProfile = asyncHandler(async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
+      reset_password_token: user.reset_password_token,
+      reset_password_expires: user.reset_password_expires,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
@@ -56,9 +58,9 @@ const updateProfile = asyncHandler(async (req, res) => {
         `/../client/public/images/${oldAvatar}`,
       );
       fs.stat(oldAvatarImageAbsolutePath, (err) => {
-        fs.unlink(oldAvatarImageAbsolutePath, (err) => {});
+        fs.unlink(oldAvatarImageAbsolutePath, (err) => { });
       });
-      
+
       // new avatar setup
       const avatarName = `avatar-${userId}-${Date.now()}.png`;
       const width = 100;
@@ -103,17 +105,57 @@ const updateProfile = asyncHandler(async (req, res) => {
 
 const readUserArticles = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findByPk(req.userId);
+    const { page, paginate } = req.query;
 
+    const user = await User.findByPk(req.userId);
     if (!user) {
       return res
         .status(404)
         .json({ message: `User with id equals to ${req.userId} not found` });
     }
 
-    const articles = await user.getArticles();
+    const articleIds = await user.getArticles().then(articles => articles.map(article => article.id));
+    if (!articleIds) {
+      const result = {
+        description: 'User\'s Articles',
+        page,
+        articles: [],
+        totalPages: 0,
+        totalData: 0
+      };
+
+      return res.status(200).json(result);
+    }
+
+    const paginationOptions = {
+      page: page || 1,
+      paginate: paginate || 20,
+      where: {
+        id: articleIds
+      },
+      attributes: ['id', 'title', 'content', 'createdAt', 'updatedAt'],
+      order: [
+        ['createdAt', 'DESC']
+      ],
+    }
+    const { docs, pages, total } = await Article.paginate(paginationOptions);
+
+    if (page > pages) {
+      return res.status(400).json({
+        message: `requested page exceeding ${pages} (total pages)`
+      });
+    }
+
+    const result = {
+      description: 'User\'s Articles',
+      page,
+      articles: docs,
+      totalPages: pages,
+      totalData: total
+    }
+
     return res.status(200).json({
-      articles,
+      result,
     });
   } catch (error) {
     console.error(error);
@@ -123,17 +165,57 @@ const readUserArticles = asyncHandler(async (req, res) => {
 
 const readUserComments = asyncHandler(async (req, res) => {
   try {
-    const user = await User.findByPk(req.userId);
+    const { page, paginate } = req.query;
 
+    const user = await User.findByPk(req.userId);
     if (!user) {
       return res
         .status(404)
         .json({ message: `User with id equals to ${req.userId} not found` });
     }
 
-    const comments = await user.getComments();
+    const commentIds = await user.getComments().then(comments => comments.map(comment => comment.id));
+    if (!commentIds) {
+      const result = {
+        description: 'User\'s Comments',
+        page,
+        comments: [],
+        totalPages: 0,
+        totalData: 0
+      };
+
+      return res.status(200).json(result);
+    }
+
+    const paginationOptions = {
+      page: page || 1,
+      paginate: paginate || 20,
+      where: {
+        id: commentIds
+      },
+      attributes: ['id', 'content', 'createdAt', 'updatedAt'],
+      order: [
+        ['createdAt', 'DESC']
+      ],
+    }
+    const { docs, pages, total } = await Comment.paginate(paginationOptions);
+
+    if (page > pages) {
+      return res.status(400).json({
+        message: `requested page exceeding ${pages} (total pages)`
+      });
+    }
+
+    const result = {
+      description: 'User\'s Comments',
+      page,
+      comments: docs,
+      totalPages: pages,
+      totalData: total
+    }
+
     return res.status(200).json({
-      comments,
+      result,
     });
   } catch (error) {
     console.error(error);

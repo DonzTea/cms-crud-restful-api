@@ -8,7 +8,7 @@ const articleMiddleware = require('../middlewares/article.js');
 const router = express.Router();
 
 router
-  .get('/', articleController.readArticles)
+  .get('/', [globalMiddleware.paginationQuery], articleController.readArticles)
   .get(
     '/:article_id',
     [articleMiddleware.isParamArticleIdExists],
@@ -50,6 +50,7 @@ router
       authMiddleware.verifyToken,
       authMiddleware.isUser,
       articleMiddleware.isParamArticleIdExists,
+      globalMiddleware.paginationQuery,
     ],
     articleController.readComments,
   );

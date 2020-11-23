@@ -21,9 +21,10 @@ router
     '/signin',
     [globalMiddleware.isRequestBodyAnObject, authMiddleware.signinBodyRequired],
     authController.signin,
-  ).get('/forgot-password', authController.renderForgotPassword)
-  .post('/forgot-password', authController.forgotPassword)
+  )
+  .get('/forgot-password', authController.renderForgotPassword)
+  .post('/forgot-password', [globalMiddleware.isRequestBodyAnObject], authController.forgotPassword)
   .get('/reset-password', authController.renderResetPassword)
-  .post('/reset-password', authController.resetPassword);
+  .post('/reset-password', [globalMiddleware.isRequestBodyAnObject, authMiddleware.resetPassword], authController.resetPassword);
 
 module.exports = router;

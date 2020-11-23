@@ -1,3 +1,5 @@
+const sequelizePaginate = require('sequelize-paginate')
+
 module.exports = (sequelize, Sequelize) => {
   const Comment = sequelize.define('comments', {
     content: {
@@ -5,6 +7,7 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
     },
   });
+  sequelizePaginate.paginate(Comment);
 
   return Comment;
 };

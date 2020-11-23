@@ -28,12 +28,12 @@ router
   )
   .get(
     '/:user_id/articles',
-    [userMiddleware.isParamUserIdExists],
+    [userMiddleware.isParamUserIdExists, globalMiddleware.paginationQuery],
     userController.readUserArticles,
   )
   .get(
     '/:user_id/comments',
-    [authMiddleware.isProfileOwner, userMiddleware.isParamUserIdExists],
+    [authMiddleware.isProfileOwner, userMiddleware.isParamUserIdExists, globalMiddleware.paginationQuery],
     userController.readUserComments,
   )
   .post(
