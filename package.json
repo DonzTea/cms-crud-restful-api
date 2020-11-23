@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development npx nodemon index.js",
-    "start": "NODE_ENV=production pm2 start index.js",
+    "start": "NODE_ENV=production node index.js",
     "pm2-start": "NODE_ENV=development pm2 start index.js",
     "pm2-stop": "pm2 stop index.js"
   },
