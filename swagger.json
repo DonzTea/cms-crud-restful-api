@@ -69,7 +69,7 @@
         "summary": "Signin",
         "description": "Login account",
         "operationId": "Signin",
-        "parameters": [{}],
+        "parameters": [],
         "requestBody": {
           "description": "",
           "content": {
