@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "CMS CRUD Restful API using Sequelize and Swagger",
-    "description": "CMS CRUD Restful API with authentication and authorization. Using PostgreSQL as DBMS and Sequelize as its ORM. Documentation is served using Swagger.",
+    "title": "Blog CMS CRUD Restful API using Sequelize and Swagger",
+    "description": "Blog CMS CRUD Restful API with authentication and authorization. Using PostgreSQL as DBMS and Sequelize as its ORM. Documentation is served using Swagger.",
     "contact": {
       "name": "Doni Rahma Tiana",
       "email": "donirahmatiana@gmail.com"
@@ -69,7 +69,7 @@
         "summary": "Signin",
         "description": "Login account",
         "operationId": "Signin",
-        "parameters": [],
+        "parameters": [{}],
         "requestBody": {
           "description": "",
           "content": {
@@ -130,7 +130,17 @@
         "summary": "Forgot password",
         "description": "Generating reset password url",
         "operationId": "ForgotPassword",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "CSRF-Token",
+            "schema": {
+              "type": "string"
+            },
+            "description": "csrf token",
+            "required": true
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
@@ -168,7 +178,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "token",
+            "name": "resetPasswordToken",
             "schema": {
               "type": "string"
             },
@@ -200,7 +210,17 @@
         "summary": "Reset password",
         "description": "Reset password",
         "operationId": "ResetPassword",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "CSRF-Token",
+            "schema": {
+              "type": "string"
+            },
+            "description": "csrf token",
+            "required": true
+          }
+        ],
         "requestBody": {
           "description": "",
           "content": {
@@ -211,7 +231,7 @@
               "example": {
                 "newPassword": "123456789",
                 "verifyPassword": "123456789",
-                "token": "e37d626e8397dda4b6b0cf59f493900dd5530899"
+                "resetPasswordToken": "e37d626e8397dda4b6b0cf59f493900dd5530899"
               }
             }
           },
@@ -1517,13 +1537,13 @@
           "email": {
             "newPassword": "string",
             "verifyPassword": "string",
-            "token": "string"
+            "resetPasswordToken": "string"
           }
         },
         "example": {
           "newPassword": "123456789",
           "verifyPassword": "123456789",
-          "token": "e37d626e8397dda4b6b0cf59f493900dd5530899"
+          "resetPasswordToken": "e37d626e8397dda4b6b0cf59f493900dd5530899"
         }
       }
     },
