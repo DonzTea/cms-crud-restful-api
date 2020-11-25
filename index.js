@@ -1,13 +1,39 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
 // cors
 app.use(cors());
 
+// http response header protection
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'default-src': ["'self'"],
+        'style-src': ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
+        'script-src': ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
+        'object-src': ["'none'"],
+      },
+    },
+  }),
+);
+// app.disable('x-powered-by');
+
+app.use(cookieParser());
+
 // json request parser
 app.use(express.json());
+
+// static files
+app.use('/node_modules', express.static(__dirname + '/node_modules'));
+
+// view templates engine
+app.set('views', './app/client/public/views/');
+app.set('view engine', 'ejs');
 
 if (process.env.NODE_ENV !== 'production') {
   // .env configurations

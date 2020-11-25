@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');
 const hbs = require('nodemailer-express-handlebars');
-const { Op } = require("sequelize");
+const { Op } = require('sequelize');
 
 const db = require('../config/db.js');
 const config = require('../config/config.js');
@@ -15,19 +15,21 @@ const config = require('../config/config.js');
 const User = db.user;
 const Role = db.role;
 
-const transport = nodemailer.createTransport(smtpTransport({
-  service: 'gmail',
-  host: 'smtp.gmail.com',
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASSWORD
-  },
-}));
+const transport = nodemailer.createTransport(
+  smtpTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
+    },
+  }),
+);
 
 const handlebarsOptions = {
   viewEngine: 'handlebars',
   viewPath: path.resolve(__dirname + '/../client/public/templates/'),
-  extName: '.html'
+  extName: '.html',
 };
 
 transport.use('compile', hbs(handlebarsOptions));
@@ -38,7 +40,7 @@ const signup = asyncHandler(async (req, res) => {
       from: process.env.EMAIL,
       to: req.body.email,
       subject: 'Sending email using node.js',
-      text: 'Thank you for registering!'
+      text: 'Thank you for registering!',
     };
 
     transport.sendMail(mailOptions, function (err, result) {
@@ -118,7 +120,7 @@ const signin = asyncHandler(async (req, res) => {
       id: user.id,
       name: user.name,
       username: user.username,
-      email: user.email
+      email: user.email,
     });
   } catch (error) {
     console.error(error);
@@ -128,7 +130,11 @@ const signin = asyncHandler(async (req, res) => {
 
 const renderForgotPassword = (req, res) => {
   try {
-    return res.sendFile(path.resolve(__dirname + '/../client/public/views/forgot-password.html'));
+    const csrfToken = req.csrfToken();
+    return res.render(
+      path.resolve(__dirname + '/../client/public/views/forgot-password.ejs'),
+      { csrfToken },
+    );
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
@@ -137,7 +143,11 @@ const renderForgotPassword = (req, res) => {
 
 const renderResetPassword = (req, res) => {
   try {
-    return res.sendFile(path.resolve(__dirname + '/../client/public/views/reset-password.html'));
+    const csrfToken = req.csrfToken();
+    return res.render(
+      path.resolve(__dirname + '/../client/public/views/reset-password.html'),
+      { csrfToken },
+    );
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
@@ -148,7 +158,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({
-      where: { email }
+      where: { email },
     });
 
     if (!user) {
@@ -157,7 +167,13 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     crypto.randomBytes(20, async function (err, buffer) {
       const token = buffer.toString('hex');
-      const [result] = await User.update({ reset_password_token: token, reset_password_expires: Date.now() + 86400000 }, { where: { id: user.id } });
+      const [result] = await User.update(
+        {
+          reset_password_token: token,
+          reset_password_expires: Date.now() + 86400000,
+        },
+        { where: { id: user.id } },
+      );
       if (!result) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -171,13 +187,15 @@ const forgotPassword = asyncHandler(async (req, res) => {
         subject: 'Password help has arrived!',
         context: {
           url: `${protocol}://${host}/api/auth/reset-password?token=${token}`,
-          name: user.name
-        }
+          name: user.name,
+        },
       };
 
       transport.sendMail(data, function (err) {
         if (!err) {
-          return res.status(200).json({ message: 'Kindly check your email for further instructions' });
+          return res.status(200).json({
+            message: 'Kindly check your email for further instructions',
+          });
         } else {
           console.log(err);
           return res.status(500).json({ message: 'Internal Server Error' });
@@ -192,40 +210,44 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res, next) => {
   try {
-    const { newPassword, verifyPassword, token } = req.body;
+    const { newPassword, verifyPassword, resetPasswordToken } = req.body;
     if (newPassword === verifyPassword) {
       const password = await bcrypt.hash(newPassword, 8);
       const [originalUserData, result] = await Promise.all([
         User.findOne({
           where: {
-            reset_password_token: token,
+            reset_password_token: resetPasswordToken,
             reset_password_expires: {
-              [Op.gt]: Date.now()
-            }
-          }
-        }), User.update({
-          password,
-          reset_password_token: null,
-          reset_password_expires: null
-        }, {
-          where: {
-            reset_password_token: token,
-            reset_password_expires: {
-              [Op.gt]: Date.now()
-            }
-          }
-        })
+              [Op.gt]: Date.now(),
+            },
+          },
+        }),
+        User.update(
+          {
+            password,
+            reset_password_token: null,
+            reset_password_expires: null,
+          },
+          {
+            where: {
+              reset_password_token: resetPasswordToken,
+              reset_password_expires: {
+                [Op.gt]: Date.now(),
+              },
+            },
+          },
+        ),
       ]);
 
       if (!originalUserData) {
         return res.status(404).send({
-          message: 'User not found.'
+          message: 'User not found.',
         });
       }
 
       if (!result) {
         return res.status(400).send({
-          message: 'Password reset token is invalid or has expired.'
+          message: 'Password reset token is invalid or has expired.',
         });
       }
 
@@ -235,13 +257,15 @@ const resetPassword = asyncHandler(async (req, res, next) => {
         template: 'reset-password',
         subject: 'Password Reset Confirmation',
         context: {
-          name: originalUserData.name
-        }
+          name: originalUserData.name,
+        },
       };
 
       transport.sendMail(data, function (err) {
         if (!err) {
-          return res.status(200).json({ message: 'Password successfully updated' });
+          return res
+            .status(200)
+            .json({ message: 'Password successfully updated' });
         } else {
           console.error(error);
           return res.status(500).json({ message: 'Error while sending email' });
@@ -249,7 +273,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
       });
     } else {
       return res.status(422).send({
-        message: 'Password confirmation does not match'
+        message: 'Password confirmation does not match',
       });
     }
   } catch (error) {
@@ -264,5 +288,5 @@ module.exports = {
   renderForgotPassword,
   forgotPassword,
   renderResetPassword,
-  resetPassword
+  resetPassword,
 };
