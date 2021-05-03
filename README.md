@@ -17,13 +17,13 @@ CMS CRUD Restful API with authentication and authorization. Using PostgreSQL as 
 1. Open terminal, then execute this command :
 
 ```
-git clone https://gitlab.com/DonzTea/geek-portal-training.git
+git clone https://gitlab.com/DonzTea/cms-crud-restful-api.git
 ```
 
 2.  Enter the cloned project with this command :
 
 ```
-cd geek-portal-training
+cd cms-crud-restful-api
 ```
 
 3. Checkout to tugas2 branch with this command :
